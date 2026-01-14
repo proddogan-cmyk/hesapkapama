@@ -168,24 +168,48 @@ export function useStoreActions() {
   const setProfile = (profile: Profile) =>
     store.setState((s) => ({ ...s, profile }));
 
-const addProject = (name: string) => {
-  const clean = name.trim();
-  if (!clean) return undefined;
+  const addProject = (name: string) => {
+    const clean = name.trim();
+    if (!clean) return undefined;
 
-  const existing = store.getState().projects.find((p) => p.name === clean);
-  if (existing) {
-    store.setState({ selectedProjectId: existing.id });
-    return existing.id;
-  }
+    const existing = store.getState().projects.find((p) => p.name === clean);
+    if (existing) {
+      store.setState((s) => ({ ...s, selectedProjectId: existing.id }));
+      return existing.id;
+    }
 
-  const id = safeUUID();
-  store.setState((s) => {
-    const p: Project = { id, name: clean, createdAt: Date.now() };
-    return { ...s, projects: [p, ...s.projects], selectedProjectId: p.id };
-  });
-  return id;
-};
+    const id = safeUUID();
+    store.setState((s) => {
+      const p: Project = { id, name: clean, createdAt: Date.now() };
+      return { ...s, projects: [p, ...s.projects], selectedProjectId: p.id };
+    });
+    return id;
+  };
 
+  const deleteProject = (id: string) => {
+    store.setState((s) => {
+      const projects = s.projects.filter((p) => p.id !== id);
+      const transactions = s.transactions.filter((t) => t.projectId !== id);
+
+      const selectedProjectId =
+        s.selectedProjectId === id ? projects[0]?.id : s.selectedProjectId;
+
+      const nameTagsSet = new Set<string>();
+      const nameTags: string[] = [];
+      for (const tx of transactions) {
+        if (tx.subtype !== "advance_in" && tx.subtype !== "advance_out") continue;
+        const canonical = canonicalName(tx.who);
+        if (!canonical) continue;
+        const key = nameKey(canonical);
+        if (!nameTagsSet.has(key)) {
+          nameTagsSet.add(key);
+          nameTags.push(canonical);
+        }
+      }
+
+      return { ...s, projects, transactions, selectedProjectId, nameTags: nameTags.slice(0, 200) };
+    });
+  };
 
   const selectProject = (id: string) =>
     store.setState((s) => ({ ...s, selectedProjectId: id }));
@@ -193,47 +217,47 @@ const addProject = (name: string) => {
   const deleteTransaction = (id: string) =>
     store.setState((s) => ({ ...s, transactions: s.transactions.filter((t) => t.id !== id) }));
 
-const updateTransaction = (id: string, patch: Partial<Omit<Transaction, "id">>) => {
-  store.setState((s) => {
-    let nameTags = s.nameTags;
+  const updateTransaction = (id: string, patch: Partial<Omit<Transaction, "id">>) => {
+    store.setState((s) => {
+      let nameTags = s.nameTags;
 
-    const txs = s.transactions.map((t) => {
-      if (t.id !== id) return t;
+      const txs = s.transactions.map((t) => {
+        if (t.id !== id) return t;
 
-      const nextKind = (patch.kind ?? t.kind) as TxKind;
-      const nextSubtype = (patch.subtype ?? t.subtype) as TxSubtype;
+        const nextKind = (patch.kind ?? t.kind) as TxKind;
+        const nextSubtype = (patch.subtype ?? t.subtype) as TxSubtype;
 
-      const isAdvance = nextSubtype === "advance_in" || nextSubtype === "advance_out";
-      const nextWhoRaw = (patch.who ?? t.who) ?? "";
-      const nextWho = isAdvance ? canonicalName(String(nextWhoRaw)) : String(nextWhoRaw).trim();
+        const isAdvance = nextSubtype === "advance_in" || nextSubtype === "advance_out";
+        const nextWhoRaw = (patch.who ?? t.who) ?? "";
+        const nextWho = isAdvance ? canonicalName(String(nextWhoRaw)) : String(nextWhoRaw).trim();
 
-      if (isAdvance) {
-        const key = nameKey(nextWho);
-        if (nextWho && !nameTags.some((n) => nameKey(n) === key)) {
-          nameTags = [nextWho, ...nameTags].slice(0, 200);
+        if (isAdvance) {
+          const key = nameKey(nextWho);
+          if (nextWho && !nameTags.some((n) => nameKey(n) === key)) {
+            nameTags = [nextWho, ...nameTags].slice(0, 200);
+          }
         }
-      }
 
-      const nextCategory: Category =
-        isAdvance ? "AVANS" : ((patch.category ?? t.category) as Category);
+        const nextCategory: Category =
+          isAdvance ? "AVANS" : ((patch.category ?? t.category) as Category);
 
-      const next: Transaction = {
-        ...t,
-        ...patch,
-        kind: nextKind,
-        subtype: nextSubtype,
-        who: nextWho,
-        category: nextCategory,
-      };
+        const next: Transaction = {
+          ...t,
+          ...patch,
+          kind: nextKind,
+          subtype: nextSubtype,
+          who: nextWho,
+          category: nextCategory,
+        };
 
-      return next;
+        return next;
+      });
+
+      // Keep newest-first ordering by timestamp
+      const sorted = [...txs].sort((a, b) => b.ts - a.ts);
+      return { ...s, nameTags, transactions: sorted };
     });
-
-    // Keep newest-first ordering by timestamp
-    const sorted = [...txs].sort((a, b) => b.ts - a.ts);
-    return { ...s, nameTags, transactions: sorted };
-  });
-};
+  };
 
   const upsertNameTag = (raw: string) => {
     const canonical = canonicalName(raw);
@@ -282,7 +306,17 @@ const updateTransaction = (id: string, patch: Partial<Omit<Transaction, "id">>) 
     });
   };
 
-  return { setProfile, addProject, selectProject, addTransaction, addTransactionsBulk, updateTransaction, deleteTransaction, upsertNameTag };
+  return {
+    setProfile,
+    addProject,
+    deleteProject,
+    selectProject,
+    addTransaction,
+    addTransactionsBulk,
+    updateTransaction,
+    deleteTransaction,
+    upsertNameTag,
+  };
 }
 
 export const CATEGORIES: Category[] = [

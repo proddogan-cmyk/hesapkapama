@@ -27,12 +27,14 @@ export type TxSubtype = "advance_in" | "advance_out" | "generic";
 
 export type ReceiptMeta = {
   /** Base64 data URL (stored locally). */
-  imageDataUrl: string;
+  imageDataUrl?: string;
   /** Raw OCR output (optional; can be large). */
   ocrText?: string;
 
   /** Merchant / brand detected from receipt text (optional). */
   merchant?: string;
+  /** Tax ID (VKN/TCKN) if detected (optional). */
+  taxId?: string;
   /** Receipt number if detected (optional). */
   receiptNo?: string;
   /** License plate if detected (optional). */
@@ -44,6 +46,8 @@ export type ReceiptMeta = {
   inferredCategory?: Category;
   /** Confidence for parsed amount/category (optional). */
   confidence?: "high" | "medium" | "low";
+  /** Raw AI extraction (optional). */
+  ai?: { extracted?: unknown };
 };
 
 export type Project = {

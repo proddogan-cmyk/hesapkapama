@@ -8,8 +8,21 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+  const content = (
+    <html lang="tr">
+      <body>{children}</body>
+    </html>
+  );
+
+  if (!publishableKey) {
+    return content;
+  }
+
   return (
     <ClerkProvider
+      publishableKey={publishableKey}
       appearance={{
         variables: {
           colorBackground: "#020617",
@@ -29,9 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         },
       }}
     >
-      <html lang="tr">
-        <body>{children}</body>
-      </html>
+      {content}
     </ClerkProvider>
   );
 }

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import clsx from "clsx";
-import { Camera, ImagePlus, Loader2, X, UploadCloud } from "lucide-react";
+import { Loader2, Receipt, X } from "lucide-react";
 import type { Category, ReceiptMeta, Transaction, TxKind, TxSubtype } from "@/lib/types";
 import { CATEGORIES, defaultCategoryForKind, subtypeLabels, useAppStore, useStoreActions } from "@/lib/store";
 import { runOcr } from "@/lib/receipt/ocr";
@@ -81,9 +81,16 @@ const [useVision, setUseVision] = React.useState<boolean>(true);
 const [visionStatus, setVisionStatus] = React.useState<string>("");
 
 
-  const [cameraOpen, setCameraOpen] = React.useState(false);
-  const videoRef = React.useRef<HTMLVideoElement | null>(null);
-  const streamRef = React.useRef<MediaStream | null>(null);
+  const [receiptConfirmOpen, setReceiptConfirmOpen] = React.useState(false);
+  const [receiptDraft, setReceiptDraft] = React.useState<{
+    imageDataUrl: string;
+    merchant: string;
+    category: Category;
+    amount: string;
+    receiptNo: string;
+    plate?: string;
+    receiptMeta: ReceiptMeta;
+  } | null>(null);
 
   const reset = React.useCallback(() => {
     setSubtype(kind === "income" ? "advance_in" : "generic");
@@ -99,7 +106,8 @@ const [visionStatus, setVisionStatus] = React.useState<string>("");
     setOcrBusy(false);
     setUseVision(true);
     setVisionStatus("");
-    setCameraOpen(false);
+    setReceiptConfirmOpen(false);
+    setReceiptDraft(null);
   }, [kind]);
 
 // Prefill when editing
@@ -115,10 +123,10 @@ React.useEffect(() => {
   setAmount(String(editTx.amount ?? ""));
   setTs(editTx.ts);
   setReceipt(editTx.receipt);
+  setReceiptNo(editTx.receipt?.receiptNo ?? "");
   setOcrStatus("");
   setOcrProgress(0);
   setOcrBusy(false);
-  setCameraOpen(false);
 }, [open, editTx]);
 
 
@@ -220,6 +228,14 @@ React.useEffect(() => {
     return;
   }
 
+  const nextReceipt: ReceiptMeta | undefined =
+    receipt || receiptNo
+      ? {
+          ...(receipt ?? {}),
+          receiptNo: receiptNo || receipt?.receiptNo,
+        }
+      : undefined;
+
   const tx: Omit<Transaction, "id"> = {
     projectId: resolvedProjectId,
     ts,
@@ -229,8 +245,7 @@ React.useEffect(() => {
     who,
     description: desc,
     amount: v,
-    receiptNo,
-    receiptUrls: receiptUrls ?? [],
+    receipt: nextReceipt,
   };
 
   if (editTx) {
@@ -267,6 +282,36 @@ const extractMerchant = (t: string): string => {
   return "";
 };
 
+const isTaxiMerchant = (merchant: string) => /taksi|taxi/i.test(merchant);
+
+const isFuelMerchant = (merchant: string) =>
+  /(shell|opet|bp|petrol\s*ofisi|total|aytemiz)/i.test(merchant);
+
+const buildAutoDescription = ({
+  category,
+  merchant,
+  plate,
+}: {
+  category?: Category;
+  merchant?: string;
+  plate?: string;
+}): string => {
+  const parts: string[] = [];
+  const safeMerchant = merchant?.trim();
+  const safePlate = plate?.trim();
+  const taxi = category === "TAKSİ" || (safeMerchant ? isTaxiMerchant(safeMerchant) : false);
+  const fuel = safeMerchant ? isFuelMerchant(safeMerchant) : false;
+
+  if (taxi) {
+    if (safeMerchant) parts.push(`Taksi: ${safeMerchant}`);
+    if (safePlate) parts.push(`Plaka: ${safePlate}`);
+  } else if (fuel) {
+    if (safePlate) parts.push(`Plaka: ${safePlate}`);
+  }
+
+  return parts.join(" | ");
+};
+
 const applyVision = (extracted: any, imageDataUrl: string) => {
   const merchant = String(extracted?.merchant || "").trim();
   const taxId = String(extracted?.taxId || "").trim();
@@ -274,6 +319,9 @@ const applyVision = (extracted: any, imageDataUrl: string) => {
   const total = extracted?.total;
   const dateISO = String(extracted?.dateISO || "").trim();
   const timeHHMM = String(extracted?.timeHHMM || "").trim();
+  const rawText = typeof extracted?.rawText === "string" ? extracted.rawText : "";
+  const parsed = rawText ? parseReceiptText(rawText) : {};
+  const inferredMerchant = merchant || parsed.brand || extractMerchant(rawText);
 
   const tsFromVision = (() => {
     if (!dateISO) return null;
@@ -284,27 +332,33 @@ const applyVision = (extracted: any, imageDataUrl: string) => {
 
   const nextReceipt: ReceiptMeta = {
     imageDataUrl,
-    // @ts-ignore
-    ocrText: typeof extracted?.rawText === "string" ? extracted.rawText : undefined,
-    brand: merchant || undefined,
-    // @ts-ignore
+    ocrText: rawText || undefined,
+    merchant: inferredMerchant || undefined,
     taxId: taxId || undefined,
-    // @ts-ignore
     receiptNo: rno || undefined,
-    // @ts-ignore
+    plate: parsed.plate,
+    inferredCategory: parsed.category,
     ai: { extracted },
   };
 
-  setReceipt(nextReceipt);
+  const inferredCategory =
+    parsed.category && parsed.category !== "AVANS" ? parsed.category : category;
+  const inferredAmount =
+    typeof total === "number" && Number.isFinite(total) && total > 0 ? String(total) : "";
 
-  if (kind === "expense") {
-    if (merchant) setWho(merchant);
-    if (typeof total === "number" && Number.isFinite(total) && total > 0) setAmount(String(total));
-    if (tsFromVision) setTs(tsFromVision);
-    setSubtype("generic");
-  }
+  setReceiptDraft({
+    imageDataUrl,
+    merchant: inferredMerchant,
+    category: inferredCategory,
+    amount: inferredAmount,
+    receiptNo: rno,
+    plate: parsed.plate,
+    receiptMeta: nextReceipt,
+  });
+  setReceiptConfirmOpen(true);
 
-  if (rno) setReceiptNo(rno);
+  if (tsFromVision) setTs(tsFromVision);
+  setSubtype("generic");
 };
 
 const applyParsed = (parsedText: string, imageDataUrl: string) => {
@@ -315,28 +369,29 @@ const applyParsed = (parsedText: string, imageDataUrl: string) => {
     const nextReceipt: ReceiptMeta = {
       imageDataUrl,
       ocrText: parsedText,
-      brand: merchantGuess || undefined,
-      // @ts-ignore
+      merchant: merchantGuess || undefined,
       taxId: taxId || undefined,
-      // @ts-ignore
       receiptNo: rno || undefined,
       plate: parsed.plate,
       inferredCategory: parsed.category,
     };
-    setReceipt(nextReceipt);
+    const inferredCategory =
+      parsed.category && parsed.category !== "AVANS" ? parsed.category : category;
+    const inferredAmount = parsed.amount != null ? String(parsed.amount) : "";
 
-    if (kind === "expense") {
-      if (parsed.category && parsed.category !== "AVANS") setCategory(parsed.category);
-      if (merchantGuess) setWho(merchantGuess);
-      if (rno) setReceiptNo(rno);
-      if (parsed.plate) setDesc((d) => (d ? d + " | " : "") + `Plaka: ${parsed.plate}`);
-      if (parsed.amount != null) setAmount(String(parsed.amount));
-      if (parsed.dateMs) setTs(parsed.dateMs);
-      setSubtype("generic");
-    } else {
-      // income: do not override who for advances; keep user-driven
-      if (parsed.amount != null && toTryInt(amount) == null) setAmount(String(parsed.amount));
-    }
+    setReceiptDraft({
+      imageDataUrl,
+      merchant: merchantGuess,
+      category: inferredCategory,
+      amount: inferredAmount,
+      receiptNo: rno,
+      plate: parsed.plate,
+      receiptMeta: nextReceipt,
+    });
+    setReceiptConfirmOpen(true);
+
+    if (parsed.dateMs) setTs(parsed.dateMs);
+    setSubtype("generic");
   };
 
   const onPickSingleFile = async (file: File | null) => {
@@ -347,7 +402,6 @@ reader.onload = async () => {
   const imageDataUrlRaw = String(reader.result || "");
   const imageDataUrl = useVision ? await resizeDataUrlForVision(imageDataUrlRaw) : imageDataUrlRaw;
 
-  setReceipt({ imageDataUrl });
   setOcrBusy(true);
   setOcrProgress(0);
   setOcrStatus("Fiş okunuyor…");
@@ -359,7 +413,7 @@ reader.onload = async () => {
       const res = await runVisionReceipt(imageDataUrl);
       if (res?.ok && res.extracted) {
         applyVision(res.extracted, imageDataUrl);
-        setOcrStatus("AI ile okundu ve alanlar dolduruldu.");
+        setOcrStatus("Fiş okundu, onay bekleniyor.");
         return;
       }
       setVisionStatus(res?.error ? String(res.error) : "AI okuma başarısız. OCR deneniyor…");
@@ -374,7 +428,7 @@ reader.onload = async () => {
       return;
     }
     applyParsed(text, imageDataUrl);
-    setOcrStatus("Fiş okundu ve alanlar dolduruldu.");
+    setOcrStatus("Fiş okundu, onay bekleniyor.");
   } catch (e: any) {
     setOcrStatus(`Okuma hata: ${e?.message || "Bilinmeyen"}`);
   } finally {
@@ -382,6 +436,16 @@ reader.onload = async () => {
   }
 };
     reader.readAsDataURL(file);
+  };
+
+  const onPickFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    if (files.length === 1) {
+      await onPickSingleFile(files[0]);
+      return;
+    }
+
+    await onPickBulkFiles(files);
   };
 
   const onPickBulkFiles = async (files: FileList | null) => {
@@ -450,18 +514,20 @@ const inferredTs =
     : (parsed.dateMs || Date.now());
 
 const inferredCategory = parsed.category && parsed.category !== "AVANS" ? parsed.category : "DİĞER";
+const autoDesc = buildAutoDescription({
+  category: inferredCategory as Category,
+  merchant,
+  plate: parsed.plate,
+});
 
 const receiptMeta: ReceiptMeta = {
   imageDataUrl,
   ocrText: parsedText,
-  brand: merchant,
+  merchant,
   plate: parsed.plate,
   inferredCategory: inferredCategory as any,
-  // @ts-ignore
   taxId: String(visionExtracted?.taxId || "").trim() || undefined,
-  // @ts-ignore
   receiptNo: String(visionExtracted?.receiptNo || "").trim() || undefined,
-  // @ts-ignore
   ai: visionExtracted ? { extracted: visionExtracted } : undefined,
 };
 
@@ -472,11 +538,9 @@ txs.push({
   subtype: "generic",
   category: inferredCategory as Category,
   who: merchant,
-  description: parsed.plate ? `Plaka: ${parsed.plate}` : "",
+  description: autoDesc || (parsed.plate ? `Plaka: ${parsed.plate}` : ""),
   amount: total,
   receipt: receiptMeta,
-  // @ts-ignore
-  receiptNo: String(visionExtracted?.receiptNo || "").trim() || undefined,
 });
 
       done++;
@@ -493,77 +557,46 @@ txs.push({
     onClose();
   };
 
-  const openCamera = async () => {
-    setCameraOpen(true);
-    setOcrStatus("");
-    setOcrProgress(0);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-    } catch (e: any) {
-      setOcrStatus(`Kamera açılamadı: ${e?.message || "İzin yok"}`);
-      setCameraOpen(false);
+  const onConfirmReceipt = () => {
+    if (!receiptDraft) return;
+
+    const nextReceipt: ReceiptMeta = {
+      ...receiptDraft.receiptMeta,
+      merchant: receiptDraft.merchant || undefined,
+      receiptNo: receiptDraft.receiptNo || undefined,
+      inferredCategory: receiptDraft.category,
+      plate: receiptDraft.plate,
+    };
+
+    setReceipt(nextReceipt);
+    setReceiptNo(receiptDraft.receiptNo || "");
+
+    if (receiptDraft.amount) setAmount(receiptDraft.amount);
+    if (receiptDraft.merchant) setWho(receiptDraft.merchant);
+    setCategory(receiptDraft.category);
+
+    const autoDesc = buildAutoDescription({
+      category: receiptDraft.category,
+      merchant: receiptDraft.merchant,
+      plate: receiptDraft.plate,
+    });
+
+    if (autoDesc) {
+      setDesc((prev) => {
+        const trimmed = String(prev || "").trim();
+        if (!trimmed) return autoDesc;
+        if (trimmed.includes(autoDesc)) return trimmed;
+        return `${trimmed} | ${autoDesc}`;
+      });
     }
+
+    setReceiptConfirmOpen(false);
+    setReceiptDraft(null);
   };
 
-  const closeCamera = () => {
-    streamRef.current?.getTracks()?.forEach((t) => t.stop());
-    streamRef.current = null;
-    setCameraOpen(false);
-  };
-
-  const captureFromCamera = async () => {
-    const video = videoRef.current;
-    if (!video) return;
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
-
-    closeCamera();
-
-    setReceipt({ imageDataUrl: dataUrl });
-    setOcrBusy(true);
-    setOcrProgress(0);
-    
-setOcrStatus("Fiş okunuyor…");
-setVisionStatus("");
-try {
-  const dataUrlOptimized = useVision ? await resizeDataUrlForVision(dataUrl) : dataUrl;
-
-  if (useVision) {
-    setVisionStatus("AI (Vision) çalışıyor…");
-    const res = await runVisionReceipt(dataUrlOptimized);
-    if (res?.ok && res.extracted) {
-      applyVision(res.extracted, dataUrlOptimized);
-      setOcrStatus("AI ile okundu ve alanlar dolduruldu.");
-      return;
-    }
-    setVisionStatus(res?.error ? String(res.error) : "AI okuma başarısız. OCR deneniyor…");
-  }
-
-  const text = await runOcr(dataUrlOptimized, (p, s) => {
-    setOcrProgress(p);
-    setOcrStatus(s === "recognizing text" ? "Metin çözülüyor…" : "İşleniyor…");
-  });
-  if (!text.trim()) {
-    setOcrStatus("OCR boş döndü. Manuel girilebilir.");
-    return;
-  }
-  applyParsed(text, dataUrlOptimized);
-  setOcrStatus("Fiş okundu ve alanlar dolduruldu.");
-} catch (e: any) {
-  setOcrStatus(`Okuma hata: ${e?.message || "Bilinmeyen"}`);
-} finally {
-  setOcrBusy(false);
-}
+  const onCancelReceipt = () => {
+    setReceiptConfirmOpen(false);
+    setReceiptDraft(null);
   };
 
   const header = kind === "income" ? "Giriş (+)" : "Çıkış (–)";
@@ -695,25 +728,10 @@ try {
 
                 <div className="flex items-center gap-2">
                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 [color-scheme:dark]">
-                    <ImagePlus className="h-4 w-4" />
-                    Foto Yükle
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => onPickSingleFile(e.target.files?.[0] ?? null)} />
+                    <Receipt className="h-4 w-4" />
+                    Fiş Ekle
+                    <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => onPickFiles(e.target.files)} />
                   </label>
-
-                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 [color-scheme:dark]">
-                    <UploadCloud className="h-4 w-4" />
-                    Toplu (≤50)
-                    <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => onPickBulkFiles(e.target.files)} />
-                  </label>
-
-                  <button
-                    type="button"
-                    onClick={openCamera}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-950 hover:bg-emerald-400"
-                  >
-                    <Camera className="h-4 w-4" />
-                    Kamera
-                  </button>
                 </div>
               </div>
 
@@ -735,9 +753,9 @@ try {
                         <div className="h-full bg-emerald-500" style={{ width: `${ocrProgress}%` }} />
                       </div>
                     )}
-                    {receipt.brand || receipt.plate || receipt.inferredCategory ? (
+                    {receipt.merchant || receipt.plate || receipt.inferredCategory ? (
                       <div className="mt-3 text-slate-400">
-                        {receipt.brand ? <span className="mr-3">Marka: <span className="text-slate-200">{receipt.brand}</span></span> : null}
+                        {receipt.merchant ? <span className="mr-3">Marka: <span className="text-slate-200">{receipt.merchant}</span></span> : null}
                         {receipt.inferredCategory ? <span className="mr-3">Kategori: <span className="text-slate-200">{receipt.inferredCategory}</span></span> : null}
                         {receipt.plate ? <span>Plaka: <span className="text-slate-200">{receipt.plate}</span></span> : null}
                       </div>
@@ -748,30 +766,6 @@ try {
             </div>
           )}
 
-          {cameraOpen && (
-            <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/60 p-4 [color-scheme:dark]">
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold text-slate-100">Kamera</div>
-                <button
-                  type="button"
-                  onClick={closeCamera}
-                  className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 [color-scheme:dark]"
-                >
-                  Kapat
-                </button>
-              </div>
-              <video ref={videoRef} className="mt-3 w-full rounded-2xl border border-white/10 bg-black" playsInline />
-              <div className="mt-3 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={captureFromCamera}
-                  className="rounded-2xl bg-emerald-500 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-emerald-400"
-                >
-                  Çek & Oku
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="flex items-center justify-between gap-2 border-t border-white/10 bg-slate-950/60 px-5 py-4">
@@ -791,6 +785,127 @@ try {
           </button>
         </div>
       </div>
+
+      {receiptConfirmOpen && receiptDraft && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 px-4 py-6">
+          <div className="w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-slate-950 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+              <div className="text-sm font-semibold text-slate-100">Fiş Onayı</div>
+              <button
+                type="button"
+                onClick={onCancelReceipt}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-slate-950/60 text-slate-200 hover:bg-white/10"
+                aria-label="Kapat"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="grid gap-6 px-5 py-5 md:grid-cols-[220px_1fr]">
+              <div className="space-y-3">
+                <img
+                  src={receiptDraft.imageDataUrl}
+                  alt="Fiş önizleme"
+                  className="h-40 w-full rounded-2xl border border-white/10 object-cover"
+                />
+                <p className="text-xs text-slate-400">
+                  Açıklama alanı kullanıcıya bırakılır. (Taksi/benzin fişlerinde otomatik açıklama eklenir.)
+                </p>
+              </div>
+
+              <div className="grid gap-4">
+                <label className="grid gap-2 text-xs text-slate-300">
+                  Kategori
+                  <select
+                    value={receiptDraft.category}
+                    onChange={(e) =>
+                      setReceiptDraft((prev) => (prev ? { ...prev, category: e.target.value as Category } : prev))
+                    }
+                    className="h-11 rounded-2xl border border-white/10 bg-slate-950/60 px-3 text-sm text-slate-100 outline-none [color-scheme:dark]"
+                  >
+                    {CATEGORIES.map((c) => (
+                      <option key={c} value={c} className="bg-slate-950 text-slate-100">
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="grid gap-2 text-xs text-slate-300">
+                  Mağaza
+                  <input
+                    value={receiptDraft.merchant}
+                    onChange={(e) =>
+                      setReceiptDraft((prev) => (prev ? { ...prev, merchant: e.target.value } : prev))
+                    }
+                    className="h-11 rounded-2xl border border-white/10 bg-slate-950/60 px-3 text-sm text-slate-100 outline-none"
+                    placeholder="Örn: Shell, Taksi..."
+                  />
+                </label>
+
+                <label className="grid gap-2 text-xs text-slate-300">
+                  Tutar (₺)
+                  <input
+                    value={receiptDraft.amount}
+                    onChange={(e) =>
+                      setReceiptDraft((prev) => (prev ? { ...prev, amount: e.target.value } : prev))
+                    }
+                    inputMode="decimal"
+                    className="h-11 rounded-2xl border border-white/10 bg-slate-950/60 px-3 text-sm text-slate-100 outline-none"
+                    placeholder="Örn: 1250"
+                  />
+                </label>
+
+                <label className="grid gap-2 text-xs text-slate-300">
+                  Fiş No
+                  <input
+                    value={receiptDraft.receiptNo}
+                    onChange={(e) =>
+                      setReceiptDraft((prev) => (prev ? { ...prev, receiptNo: e.target.value } : prev))
+                    }
+                    className="h-11 rounded-2xl border border-white/10 bg-slate-950/60 px-3 text-sm text-slate-100 outline-none"
+                    placeholder="Örn: 001234 / ZR-1234"
+                  />
+                </label>
+
+                {buildAutoDescription({
+                  category: receiptDraft.category,
+                  merchant: receiptDraft.merchant,
+                  plate: receiptDraft.plate,
+                }) && (
+                  <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-300">
+                    Otomatik açıklama:{" "}
+                    <span className="text-slate-100">
+                      {buildAutoDescription({
+                        category: receiptDraft.category,
+                        merchant: receiptDraft.merchant,
+                        plate: receiptDraft.plate,
+                      })}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 border-t border-white/10 px-5 py-4">
+              <button
+                type="button"
+                onClick={onCancelReceipt}
+                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10"
+              >
+                İptal
+              </button>
+              <button
+                type="button"
+                onClick={onConfirmReceipt}
+                className="rounded-2xl bg-emerald-500 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-emerald-400"
+              >
+                Onayla
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
