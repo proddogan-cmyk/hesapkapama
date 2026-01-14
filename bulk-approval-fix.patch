@@ -1,0 +1,529 @@
+﻿--- a/components/TransactionModal.tsx
++++ b/components/TransactionModal.tsx
+@@ -1,17 +1,17 @@
+ "use client";
+ 
+ import * as React from "react";
+ import clsx from "clsx";
+ import { Camera, ImagePlus, Loader2, X, UploadCloud } from "lucide-react";
+ import type { Category, ReceiptMeta, Transaction, TxKind, TxSubtype } from "@/lib/types";
+ import { CATEGORIES, defaultCategoryForKind, subtypeLabels, useAppStore, useStoreActions } from "@/lib/store";
+ import { runOcr } from "@/lib/receipt/ocr";
+ import { runVisionReceipt, resizeDataUrlForVision } from "@/lib/receipt/vision";
+ import { parseReceiptText } from "@/lib/receipt/parse";
+ import { canonicalName } from "@/lib/name";
+ 
+ type Props = {
+   open: boolean;
+   kind: TxKind;
+   editTx?: Transaction | null;
+   prefillFiles?: File[] | null;
+   onClose: () => void;
+ };
+ 
+ function fmtNowTs() {
+   return Date.now();
+ }
+ 
+ function toTryInt(s: string): number | null {
+   const cleaned = s.replace(/[^0-9.,]/g, "").trim();
+   if (!cleaned) return null;
+   const normalized = cleaned.replace(/\./g, "").replace(/,/g, ".");
+   const v = Number(normalized);
+   if (!Number.isFinite(v)) return null;
+   return v;
+ }
+ 
+ export default function TransactionModal({ open, kind, editTx = null, prefillFiles = null, onClose }: Props) {
+   const selectedProjectId = useAppStore((s) => s.selectedProjectId);
+   const [projectId, setProjectId] = React.useState<string>("");
+   const projects = useAppStore((s) => s.projects);
+   const profile = useAppStore((s) => s.profile);
+   const effectiveProjectId = selectedProjectId && selectedProjectId !== "__all__" ? selectedProjectId : undefined;
+   const nameTags = useAppStore((s) => s.nameTags);
+   const { addTransaction, addTransactionsBulk, updateTransaction } = useStoreActions();
+ 
+ const resolvedProjectId = React.useMemo(() => {
+   if (projectId) return projectId;
+   if (selectedProjectId && selectedProjectId !== "__all__") return selectedProjectId;
+   return projects[0]?.id || "";
+ }, [projectId, selectedProjectId, projects]);
+ 
+ const resolvedProjectName = React.useMemo(() => {
+   return projects.find((p) => p.id === resolvedProjectId)?.name || "";
+ }, [projects, resolvedProjectId]);
+ 
+ const currentUserName = React.useMemo(() => {
+   const fn = String((profile as any)?.firstName ?? "").trim();
+   const ln = String((profile as any)?.lastName ?? "").trim();
+   return `${fn} ${ln}`.trim();
+ }, [profile]);
+ 
+ const currentUserRole = React.useMemo(() => {
+   return String((profile as any)?.title ?? "").trim();
+ }, [profile]);
+ 
+ const [memberOptions, setMemberOptions] = React.useState<string[]>([]);
+ const [membersLoading, setMembersLoading] = React.useState(false);
+ 
+ 
+   const [subtype, setSubtype] = React.useState<TxSubtype>(kind === "income" ? "advance_in" : "generic");
+   const [category, setCategory] = React.useState<Category>(defaultCategoryForKind(kind));
+   const [who, setWho] = React.useState("");
+   const [desc, setDesc] = React.useState("");
+   const [receiptNo, setReceiptNo] = React.useState<string>("");
+   const [amount, setAmount] = React.useState<string>("");
+   const [ts, setTs] = React.useState<number>(fmtNowTs());
+ 
+   const [receipt, setReceipt] = React.useState<ReceiptMeta | undefined>(undefined);
+ 
++  const receiptUrls = React.useMemo(() => (receipt?.imageDataUrl ? [receipt.imageDataUrl] : []), [receipt?.imageDataUrl]);
++
+   const [ocrStatus, setOcrStatus] = React.useState<string>("");
+   const [ocrProgress, setOcrProgress] = React.useState<number>(0);
+   const [ocrBusy, setOcrBusy] = React.useState<boolean>(false);
+ 
+ const [useVision, setUseVision] = React.useState<boolean>(true);
+ const [visionStatus, setVisionStatus] = React.useState<string>("");
+ 
+ 
++  // Bulk receipt review (multi-select): allow sequential confirmation instead of silent auto-import
++  const [bulkFiles, setBulkFiles] = React.useState<File[]>([]);
++  const [bulkIndex, setBulkIndex] = React.useState<number>(0);
++  const [bulkDrafts, setBulkDrafts] = React.useState<Array<Omit<Transaction, "id">>>([]);
++  const [bulkThumbUrls, setBulkThumbUrls] = React.useState<string[]>([]);
++  const bulkActive = bulkFiles.length > 1;
++
+   const [cameraOpen, setCameraOpen] = React.useState(false);
+   const videoRef = React.useRef<HTMLVideoElement | null>(null);
+   const streamRef = React.useRef<MediaStream | null>(null);
+ 
++  // Build lightweight thumbnail URLs for bulk list
++  React.useEffect(() => {
++    if (!bulkActive) {
++      setBulkThumbUrls([]);
++      return;
++    }
++    const urls = bulkFiles.map((f) => URL.createObjectURL(f));
++    setBulkThumbUrls(urls);
++    return () => {
++      urls.forEach((u) => {
++        try { URL.revokeObjectURL(u); } catch {}
++      });
++    };
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++  }, [bulkFiles]);
++
+   const reset = React.useCallback(() => {
+     setSubtype(kind === "income" ? "advance_in" : "generic");
+     setCategory(defaultCategoryForKind(kind));
+     setWho("");
+     setDesc("");
+     setReceiptNo("");
+     setAmount("");
+     setTs(fmtNowTs());
+     setReceipt(undefined);
+     setOcrStatus("");
+     setOcrProgress(0);
+     setOcrBusy(false);
+     setUseVision(true);
+     setVisionStatus("");
+     setCameraOpen(false);
+   }, [kind]);
+ 
+ // Prefill when editing
+ React.useEffect(() => {
+   if (!open) return;
+   if (!editTx) return;
+ 
+   // Ensure modal is aligned to the transaction kind
+   setSubtype(editTx.subtype);
+   setCategory(editTx.category);
+   setWho(editTx.who ?? "");
+   setDesc(editTx.description ?? "");
+   setAmount(String(editTx.amount ?? ""));
+   setTs(editTx.ts);
+   setReceipt(editTx.receipt);
+   setOcrStatus("");
+   setOcrProgress(0);
+   setOcrBusy(false);
+   setCameraOpen(false);
+ }, [open, editTx]);
+ 
+ 
+ 
+   React.useEffect(() => {
+     if (!open) return;
+     reset();
+   }, [open, reset]);
+ 
++  // When modal closes, abort any in-progress bulk review state
++  React.useEffect(() => {
++    if (open) return;
++    setBulkFiles([]);
++    setBulkIndex(0);
++    setBulkDrafts([]);
++    // thumbnails cleanup is handled in effect above
++  }, [open]);
++
+   React.useEffect(() => {
+     if (!open) return;
+     const onKey = (e: KeyboardEvent) => {
+       if (e.key === "Escape") onClose();
+     };
+     window.addEventListener("keydown", onKey);
+     return () => window.removeEventListener("keydown", onKey);
+   }, [open, onClose]);
+ 
+@@
+ const prefillUsed = React.useRef(false);
+ 
+ React.useEffect(() => {
+   if (!open) {
+     prefillUsed.current = false;
+     return;
+   }
+   if (!prefillFiles || prefillFiles.length === 0) return;
+   if (prefillUsed.current) return;
+ 
+   prefillUsed.current = true;
+ 
+   try {
+     const dt = new DataTransfer();
+     for (const f of prefillFiles.slice(0, 50)) dt.items.add(f);
+ 
+     if (dt.files.length === 1) {
+       onPickSingleFile(dt.files[0]);
+     } else {
+       onPickBulkFiles(dt.files);
+     }
+   } catch {
+     onPickSingleFile(prefillFiles[0] ?? null);
+   }
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+ }, [open, prefillFiles]);
+@@
+   const applyParsed = (parsedText: string, imageDataUrl: string) => {
+@@
+   };
+ 
++  const buildTxFromForm = (): Omit<Transaction, "id"> | null => {
++    if (!resolvedProjectId) return null;
++
++    const v = toTryInt(amount);
++    if (v == null || v <= 0) return null;
++
++    const counterparty = String(who || "").trim();
++    if (!counterparty) return null;
++
++    const tx: Omit<Transaction, "id"> = {
++      projectId: resolvedProjectId,
++      ts,
++      kind,
++      category,
++      subtype,
++      who: counterparty,
++      description: String(desc || "").trim(),
++      amount: v,
++      receiptNo: String(receiptNo || "").trim(),
++      receiptUrls,
++      receipt: receipt,
++    } as any;
++
++    return tx;
++  };
++
++  const jumpToBulkIndex = (idx: number) => {
++    if (!bulkActive) return;
++    if (idx < 0 || idx >= bulkFiles.length) return;
++    setBulkIndex(idx);
++    reset();
++    onPickSingleFile(bulkFiles[idx] ?? null);
++    setOcrStatus(`Toplu onay: ${idx + 1}/${bulkFiles.length}`);
++  };
++
++  const addCurrentAndNextBulk = () => {
++    if (!bulkActive) return;
++
++    const tx = buildTxFromForm();
++    if (!tx) {
++      alert("Bu fiş için gerekli alanları doldurmalısın (Firma, Tutar, Proje).");
++      return;
++    }
++
++    const nextDrafts = [...bulkDrafts, tx];
++    setBulkDrafts(nextDrafts);
++
++    const nextIndex = bulkIndex + 1;
++    if (nextIndex >= bulkFiles.length) {
++      // finalize
++      addTransactionsBulk(nextDrafts);
++      setOcrStatus(`Toplu fiş eklendi: ${nextDrafts.length} adet.`);
++      setOcrBusy(false);
++      onClose();
++      return;
++    }
++
++    // move to next file
++    setBulkIndex(nextIndex);
++    reset();
++    onPickSingleFile(bulkFiles[nextIndex] ?? null);
++    setOcrStatus(`Toplu onay: ${nextIndex + 1}/${bulkFiles.length}`);
++  };
++
+   const onPickSingleFile = async (file: File | null) => {
+     if (!file) return;
+     const reader = new FileReader();
+@@
+     reader.readAsDataURL(file);
+   };
+ 
+   const onPickBulkFiles = async (files: FileList | null) => {
+-    if (!files || files.length === 0) return;
+-    if (!effectiveProjectId) return;
+-
+-    const list = Array.from(files).slice(0, 50);
+-
+-    setOcrBusy(true);
+-    setOcrProgress(0);
+-    setOcrStatus(`${useVision ? "AI ile" : "OCR ile"} toplu fiş işleniyor (${list.length})…`);
+-
+-    const txs: Array<Omit<Transaction, "id">> = [];
+-    let done = 0;
+-
+-    for (const file of list) {
+-      
+-const imageDataUrlRaw = await new Promise<string>((resolve) => {
+-  const r = new FileReader();
+-  r.onload = () => resolve(String(r.result || ""));
+-  r.readAsDataURL(file);
+-});
+-
+-const imageDataUrl = useVision ? await resizeDataUrlForVision(imageDataUrlRaw) : imageDataUrlRaw;
+-
+-let parsedText = "";
+-let visionExtracted: any = null;
+-
+-if (useVision) {
+-  try {
+-    const res = await runVisionReceipt(imageDataUrl);
+-    if (res?.ok && res.extracted) visionExtracted = res.extracted;
+-  } catch {
+-    visionExtracted = null;
+-  }
+-}
+-
+-if (!visionExtracted) {
+-  try {
+-    parsedText = await runOcr(imageDataUrl, () => {
+-      // per-file progress isn't linear; show total progress instead
+-    });
+-  } catch {
+-    parsedText = "";
+-  }
+-}
+-
+-const parsed = parsedText ? parseReceiptText(parsedText) : {};
+-const merchant = String(visionExtracted?.merchant || parsed.brand || "").trim() || "Bilinmiyor";
+-const total =
+-  typeof visionExtracted?.total === "number" && Number.isFinite(visionExtracted.total)
+-    ? visionExtracted.total
+-    : typeof parsed.amount === "number"
+-      ? parsed.amount
+-      : 0;
+-
+-const dateISO = String(visionExtracted?.dateISO || "").trim();
+-const timeHHMM = String(visionExtracted?.timeHHMM || "").trim();
+-const inferredTs =
+-  dateISO
+-    ? (() => {
+-        const dtStr = timeHHMM ? `${dateISO}T${timeHHMM}:00` : `${dateISO}T12:00:00`;
+-        const ms = new Date(dtStr).getTime();
+-        return Number.isFinite(ms) ? ms : (parsed.dateMs || Date.now());
+-      })()
+-    : (parsed.dateMs || Date.now());
+-
+-const inferredCategory = parsed.category && parsed.category !== "AVANS" ? parsed.category : "DİĞER";
+-
+-const receiptMeta: ReceiptMeta = {
+-  imageDataUrl,
+-  ocrText: parsedText,
+-  brand: merchant,
+-  plate: parsed.plate,
+-  inferredCategory: inferredCategory as any,
+-  // @ts-ignore
+-  taxId: String(visionExtracted?.taxId || "").trim() || undefined,
+-  // @ts-ignore
+-  receiptNo: String(visionExtracted?.receiptNo || "").trim() || undefined,
+-  // @ts-ignore
+-  ai: visionExtracted ? { extracted: visionExtracted } : undefined,
+-};
+-
+-txs.push({
+-  projectId: effectiveProjectId,
+-  ts: inferredTs,
+-  kind: "expense",
+-  subtype: "generic",
+-  category: inferredCategory as Category,
+-  who: merchant,
+-  description: parsed.plate ? `Plaka: ${parsed.plate}` : "",
+-  amount: total,
+-  receipt: receiptMeta,
+-  // @ts-ignore
+-  receiptNo: String(visionExtracted?.receiptNo || "").trim() || undefined,
+-});
+-
+-      done++;
+-      setOcrProgress(Math.round((done / list.length) * 100));
+-      setOcrStatus(`Toplu fiş işleniyor… (${done}/${list.length})`);
+-    }
+-
+-    // sort by date ascending for readability
+-    txs.sort((a, b) => a.ts - b.ts);
+-
+-    addTransactionsBulk(txs);
+-    setOcrStatus(`Toplu fiş eklendi: ${txs.length} adet.`);
+-    setOcrBusy(false);
+-    onClose();
++    if (!files || files.length === 0) return;
++    if (!effectiveProjectId) return;
++
++    const list = Array.from(files).slice(0, 50);
++
++    // Start bulk review mode (sequential confirmation)
++    setBulkFiles(list);
++    setBulkIndex(0);
++    setBulkDrafts([]);
++
++    setOcrBusy(false);
++    setOcrProgress(0);
++    setOcrStatus(`Toplu fiş seçildi: ${list.length}. İlk fiş okunuyor…`);
++
++    // Load first file into the same confirmation form
++    reset();
++    onPickSingleFile(list[0] ?? null);
+   };
+@@
+           {kind === "expense" && subtype === "generic" && (
+             <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/60 p-4 [color-scheme:dark]">
+               <div className="flex flex-wrap items-center justify-between gap-3">
+                 <div>
+                   <div className="text-sm font-semibold text-slate-100">Fiş (kamera veya foto)</div>
+                   <div className="text-xs text-slate-400">Fişi okutunca kategori, tutar, firma ve plaka otomatik doldurulur.</div>
+                 </div>
+ 
+                 <div className="flex items-center gap-2">
+                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 [color-scheme:dark]">
+                     <ImagePlus className="h-4 w-4" />
+                     Foto Yükle
+                     <input type="file" accept="image/*" className="hidden" onChange={(e) => onPickSingleFile(e.target.files?.[0] ?? null)} />
+                   </label>
+ 
+                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 [color-scheme:dark]">
+                     <UploadCloud className="h-4 w-4" />
+                     Toplu (≤50)
+                     <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => onPickBulkFiles(e.target.files)} />
+                   </label>
+ 
+                   <button
+                     type="button"
+                     onClick={openCamera}
+                     className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-950 hover:bg-emerald-400"
+                   >
+                     <Camera className="h-4 w-4" />
+                     Kamera
+                   </button>
+                 </div>
+               </div>
+ 
++              {bulkActive && (
++                <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/40 p-4">
++                  <div className="flex items-center justify-between gap-2">
++                    <div className="text-sm font-semibold text-slate-100">
++                      Toplu Onay ({bulkIndex + 1}/{bulkFiles.length})
++                    </div>
++                    <div className="text-xs text-slate-400">Hazır: {bulkDrafts.length}/{bulkFiles.length}</div>
++                  </div>
++
++                  {bulkThumbUrls.length > 0 ? (
++                    <div className="mt-3 flex gap-2 overflow-auto pb-1">
++                      {bulkThumbUrls.map((u, i) => (
++                        <button
++                          key={u}
++                          type="button"
++                          onClick={() => jumpToBulkIndex(i)}
++                          className={clsx(
++                            "shrink-0 overflow-hidden rounded-2xl border",
++                            i === bulkIndex ? "border-emerald-400" : "border-white/10"
++                          )}
++                          title={`${i + 1}. fiş`}
++                        >
++                          <img src={u} alt="" className="h-14 w-14 object-cover" />
++                        </button>
++                      ))}
++                    </div>
++                  ) : null}
++
++                  <div className="mt-3 text-xs text-slate-400">
++                    Her fişi bu ekranda kontrol et. “Bu fişi ekle” dediğinde bir sonraki fişe geçer.
++                  </div>
++                </div>
++              )}
++
+               {receipt?.imageDataUrl && (
+                 <div className="mt-4 grid gap-3 md:grid-cols-[140px_1fr]">
+                   <img
+                     src={receipt.imageDataUrl}
+                     alt="Fiş"
+                     className="h-28 w-full rounded-2xl border border-white/10 object-cover"
+                   />
+@@
+         <div className="flex items-center justify-between gap-2 border-t border-white/10 bg-slate-950/60 px-5 py-4">
+           <div className="text-xs text-slate-400">
+             {selectedProjectId ? "Kaydetmeye hazır." : "Proje seçmeden kayıt edemezsin."}
+           </div>
+-          <button
+-            type="button"
+-            onClick={submit}
+-            disabled={!canSubmit}
+-            className={clsx(
+-              "h-11 rounded-2xl px-5 text-sm font-semibold transition",
+-              canSubmit ? "bg-emerald-500 text-slate-950 hover:bg-emerald-400" : "bg-white/10 text-slate-500"
+-            )}
+-          >
+-            {editTx ? "Güncelle" : "Kaydet"}
+-          </button>
++          {bulkActive ? (
++            <button
++              type="button"
++              onClick={addCurrentAndNextBulk}
++              disabled={!canSubmit || ocrBusy}
++              className={clsx(
++                "h-11 rounded-2xl px-5 text-sm font-semibold transition",
++                !canSubmit || ocrBusy
++                  ? "bg-white/10 text-slate-500"
++                  : "bg-emerald-500 text-slate-950 hover:bg-emerald-400"
++              )}
++            >
++              {bulkIndex + 1 >= bulkFiles.length
++                ? `Toplu Kaydet (${bulkDrafts.length + 1})`
++                : `Bu fişi ekle (${bulkIndex + 1}/${bulkFiles.length})`}
++            </button>
++          ) : (
++            <button
++              type="button"
++              onClick={submit}
++              disabled={!canSubmit}
++              className={clsx(
++                "h-11 rounded-2xl px-5 text-sm font-semibold transition",
++                canSubmit ? "bg-emerald-500 text-slate-950 hover:bg-emerald-400" : "bg-white/10 text-slate-500"
++              )}
++            >
++              {editTx ? "Güncelle" : "Kaydet"}
++            </button>
++          )}
+         </div>
+       </div>
+     </div>
+   );
+ }

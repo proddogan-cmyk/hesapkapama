@@ -1,0 +1,307 @@
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\api\receipt\vision\route.ts:43:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\api\receipt\vision\route.ts:44:    const prompt =
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\api\receipt\vision\route.ts:45:      "Bu bir fiþ / pos slip görseli. Þu alanlarý çýkar: merchant (firma adý), taxId (VKN/TCKN), receiptNo (fiþ no), dateISO (YYYY-MM-DD), timeHHMM (HH:MM), total (toplam), currency (TRY vs), vatTotal (varsa KDV toplamý), note (kýsa not), confidence (0-1). Eðer emin deðilsen boþ string veya null kullan. Ek olarak mümkünse rawText'e kýsa bir metin dökümü koy.";
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\api\receipt\vision\route.ts:46:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\api\receipt\vision\route.ts:47:    const payload = {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\projects\page.tsx:164:    const input = document.createElement("input");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\projects\page.tsx:165:    input.type = "file";
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\projects\page.tsx:166:    input.multiple = false;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\projects\page.tsx:167:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\projects\page.tsx:168:    if (docType === "calendar") {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\settings\page.tsx:76:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\settings\page.tsx:77:      <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950/40 p-4 text-xs text-slate-400">
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\settings\page.tsx:78:        Not: Bu sürüm verileri tarayýcýda (localStorage) tutar. Çok fazla fiþ görseli eklersen depolama dolabilir. Prod kullaným için buluta taþýma önerilir.
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\settings\page.tsx:79:      </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\settings\page.tsx:80:    </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:59:              <div className="text-lg font-semibold text-slate-100">Ana Sayfa</div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:60:              <div className="mt-1 text-xs text-slate-400">
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:61:                Proje seç › alt menünün üstündeki butonlarla gelir/gider ve fiþ ekle.
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:62:              </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:63:            </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:170:                            onClick={() => openReceipt(tx.receipt?.imageDataUrl as string)}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:171:                            className="inline-flex h-7 w-7 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:172:                            aria-label="Fiþi aç"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:173:                          >
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:174:                            <ReceiptText className="h-4 w-4" />
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:40:            </h1>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:41:            <p className="mt-4 text-base leading-relaxed text-slate-300">
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:42:              hesapkapama.com v2; proje bazlý kasa takibi, avans giriþ/çýkýþ yönetimi, fiþten otomatik
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:43:              okuma (kamera veya foto), kategori özetleri ve Excel þablon çýktýsý ile üretim sonunda
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:44:              hesabý hýzlý ve temiz kapatmaný saðlar.
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:64:            <SignedOut>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:65:              <div className="mt-5 text-xs text-slate-400">
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:66:                Not: Kamera ile fiþ tarama için localhost veya HTTPS gerekir.
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:67:              </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:68:            </SignedOut>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:76:              <li>• + (giriþ) / – (çýkýþ) hýzlý aksiyonlarý her sayfada sabit</li>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:77:              <li>• Avans kiþi isimleri otomatik hatýrlanýr, yazým hatasý tek kiþide birleþir</li>
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:78:              <li>• Fiþ fotoðrafýna týkla › görseli aç</li>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:79:              <li>• Yanlýþ iþlem › tek týkla sil</li>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\page.tsx:80:            </ul>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:90:        ref={camRef}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:91:        type="file"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:92:        accept="image/*"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:93:        capture="environment"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:94:        className="hidden"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:98:        ref={galleryRef}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:99:        type="file"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:100:        accept="image/*"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:101:        className="hidden"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:102:        onChange={(e) => onCameraPick(e.target.files)}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:105:        ref={multiRef}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:106:        type="file"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:107:        accept="image/*"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:108:        multiple
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:109:        className="hidden"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:110:        onChange={(e) => onMultiPick(e.target.files)}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:137:            onClick={() => camRef.current?.click()}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:138:            className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:139:            aria-label="Kamera veya Galeri (Tek fiþ)"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:140:            title="Kamera veya Galeri (Tek fiþ)"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:141:          >
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\BottomActionBar.tsx:142:            <Camera className="h-5 w-5" />
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:196:        ref={fileCamRef}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:197:        type="file"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:198:        accept="image/*"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:199:        capture="environment"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:200:        className="hidden"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:204:        ref={filePickRef}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:205:        type="file"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:206:        accept="image/*"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:207:        className="hidden"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:208:        onChange={(e) => onPickedSingle(e.target.files)}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:211:        ref={fileMultiRef}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:212:        type="file"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:213:        accept="image/*"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:214:        multiple
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:215:        className="hidden"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\GlobalFab.tsx:216:        onChange={(e) => onPickedMulti(e.target.files)}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:190:  onAmount,
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:191:  onParsed,
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:192:  onBulkParsed,
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:193:}: {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:194:  onMeta: (m: ReceiptMeta, previewUrl?: string) => void;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:195:  onAmount: (a?: number) => void;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:196:  onParsed?: (p: Parsed) => void;
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:197:  onBulkParsed?: (items: Array<Parsed & { imageDataUrl: string }>) => void;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:198:}) {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:199:  const [busy, setBusy] = React.useState(false);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:200:  const [err, setErr] = React.useState("");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:201:  const [preview, setPreview] = React.useState("");
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:202:  const [bulkMsg, setBulkMsg] = React.useState("");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:203:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:204:  // Overlay UI (portal to <body> so it can't be clipped by modal transforms)
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:205:  const [overlayOpen, setOverlayOpen] = React.useState(false);
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:206:  const [phase, setPhase] = React.useState<"single" | "bulk">("single");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:207:  const [stage, setStage] = React.useState("Hazýrlanýyor…");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:208:  const [current, setCurrent] = React.useState(0);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:220:  const elapsedMs = overlayOpen ? nowTs - startAt : 0;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:221:  const elapsed = formatElapsed(elapsedMs);
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:222:  const overall = phase === "bulk" ? Math.min(1, (current + fileProgress) / Math.max(1, total)) : fileProgress;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:223:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:224:  const etaSeconds =
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:225:    phase === "bulk" && current > 0 ? ((elapsedMs / 1000) / current) * (total - current) : NaN;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:226:
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:227:  function openOverlay(nextPhase: "single" | "bulk", nextTotal: number) {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:228:    setPhase(nextPhase);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:229:    setStage("Hazýrlanýyor…");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:240:    setStage("Ön iþleme…");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:241:    const processed = await preprocessForOcr(dataUrl);
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:242:    // let UI paint (important for bulk)
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:243:    await new Promise((r) => requestAnimationFrame(() => r(null)));
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:244:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:268:    setBusy(true);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:269:    setErr("");
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:270:    setBulkMsg("");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:271:    openOverlay("single", 1);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:272:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:290:      await new Promise((r) => setTimeout(r, 200)); // show completion briefly
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:291:    } catch {
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:292:      setErr("Fiþ okunamadý veya güvenilir veri çýkarýlamadý. Foto eklendi; alanlarý manuel doldurabilirsin.");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:293:      onMeta({ imageDataUrl: dataUrl }, dataUrl);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:294:      onAmount(undefined);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:301:  }
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:302:
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:303:  async function runBulk(files: FileList) {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:304:    const list = Array.from(files).slice(0, 50);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:305:    if (list.length === 0) return;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:307:    setBusy(true);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:308:    setErr("");
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:309:    setBulkMsg("");
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:310:    openOverlay("bulk", list.length);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:311:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:312:    const out: Array<Parsed & { imageDataUrl: string }> = [];
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:352:      await new Promise((r) => setTimeout(r, 250));
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:353:    } catch {
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:354:      setErr("Toplu OCR baþarýsýz oldu. Tekli fiþ ile deneyebilirsin.");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:355:      setBusy(false);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:356:      setOverlayOpen(false);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:367:    const missing = out.length - okAmount;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:368:
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:369:    setBulkMsg(
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:370:      `${out.length} fiþ iþlendi. ${okAmount} fiþte tutar bulundu, ${missing} fiþte tutar bulunamadý (Düzenle ile tamamlayabilirsin).`
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:371:    );
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:372:    onBulkParsed?.(out);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:373:  }
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:374:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:379:        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:380:          <div className="text-sm font-semibold text-slate-100">
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:381:            {phase === "bulk" ? "Fiþler iþleniyor" : "Fiþ iþleniyor"}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:382:          </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:383:          <button
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:398:          <div className="mt-1 text-xs text-slate-300">
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:399:            Süre: <span className="font-semibold text-slate-100">{elapsed}</span>
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:400:            {phase === "bulk" ? (
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:401:              <>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:402:                {" "}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:414:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:415:          <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-[12px] text-slate-300">
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:416:            Not: Ücretsiz (tarayýcý içi) OCR’da en iyi sonuç için fiþi düz, net ve gölge olmadan çek. Yine de
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:417:            bazý fiþlerde “Düzenle” ile küçük düzeltme gerekebilir.
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:418:          </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:419:        </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:432:          <input
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:433:            type="file"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:434:            accept="image/*"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:435:            className="hidden"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:436:            onChange={async (e) => {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:450:          <input
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:451:            type="file"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:452:            accept="image/*"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:453:            capture="environment"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:454:            className="hidden"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:466:        <label className="btn btn-ghost h-11 cursor-pointer gap-2">
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:467:          <Images className="h-4 w-4" />
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:468:          Toplu (?50)
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:469:          <input
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:470:            type="file"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:471:            accept="image/*"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:472:            multiple
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:473:            className="hidden"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:474:            onChange={async (e) => {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:475:              const fs = e.target.files;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:476:              if (!fs || fs.length === 0) return;
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:477:              await runBulk(fs);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:478:              e.target.value = "";
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:479:            }}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:483:        <div className="ml-auto inline-flex items-center gap-2 text-xs text-slate-400">
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:484:          <Sparkles className="h-4 w-4" />
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:485:          {busy ? "OCR çalýþýyor…" : "Foto/Kamera › OCR › otomatik doldur. Toplu yükleme destekli."}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:486:        </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:487:      </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:488:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:489:      {preview ? (
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:490:        <img src={preview} alt="Fiþ önizleme" className="max-h-48 w-auto rounded-2xl border border-white/10" />
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:491:      ) : null}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:492:
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:493:      {bulkMsg ? <div className="text-xs text-slate-300">{bulkMsg}</div> : null}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:494:      {err ? <div className="text-xs text-amber-300">{err}</div> : null}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptUpload.tsx:495:    </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:21:      <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-2xl">
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:22:        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:23:          <div className="text-sm font-semibold text-slate-100">Fiþ Görseli</div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:24:          <button
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:25:            type="button"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:35:            <img
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:36:              src={src}
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:37:              alt="Fiþ"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:38:              className="mx-auto h-auto w-full max-w-3xl rounded-xl border border-white/10 bg-black object-contain"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:39:            />
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:40:          ) : (
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:41:            <div className="rounded-xl border border-white/10 bg-white/5 p-6 text-sm text-slate-300">
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:42:              Bu iþlemde kayýtlý fiþ görseli bulunamadý.
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:43:            </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:44:          )}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:39:  const effectiveProjectId = selectedProjectId && selectedProjectId !== "__all__" ? selectedProjectId : undefined;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:40:  const nameTags = useAppStore((s) => s.nameTags);
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:41:  const { addTransaction, addTransactionsBulk, updateTransaction } = useStoreActions();
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:42:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:43:const resolvedProjectId = React.useMemo(() => {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:168:      onPickSingleFile(dt.files[0]);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:169:    } else {
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:170:      onPickBulkFiles(dt.files);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:171:    }
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:172:  } catch {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:247:const extractReceiptNo = (t: string): string => {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:248:  const m =
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:249:    t.match(/(?:fi[þs]\s*no|fis\s*no|receipt\s*no|belge\s*no|document\s*no)\s*[:#\-]?\s*([A-Z0-9\-\/]{4,})/i) ||
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:250:    t.match(/(?:FIS|FIÞ)\s*NO\s*[:#\-]?\s*([A-Z0-9\-\/]{4,})/i);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:251:  return m ? String(m[1] || "").trim() : "";
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:262:  const lines = t.split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:263:  for (const ln of lines.slice(0, 6)) {
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:264:    if (/^(fi[þs]|fis|fatura|invoice|tarih|date|saat|time|toplam|total|kdv|vat)/i.test(ln)) continue;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:265:    if (ln.length >= 3 && ln.length <= 40) return ln;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:266:  }
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:351:  setOcrBusy(true);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:352:  setOcrProgress(0);
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:353:  setOcrStatus("Fiþ okunuyor…");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:354:  setVisionStatus("");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:355:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:375:    }
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:376:    applyParsed(text, imageDataUrl);
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:377:    setOcrStatus("Fiþ okundu ve alanlar dolduruldu.");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:378:  } catch (e: any) {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:379:    setOcrStatus(`Okuma hata: ${e?.message || "Bilinmeyen"}`);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:385:  };
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:386:
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:387:  const onPickBulkFiles = async (files: FileList | null) => {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:388:    if (!files || files.length === 0) return;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:389:    if (!effectiveProjectId) return;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:393:    setOcrBusy(true);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:394:    setOcrProgress(0);
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:395:    setOcrStatus(`${useVision ? "AI ile" : "OCR ile"} toplu fiþ iþleniyor (${list.length})…`);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:396:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:397:    const txs: Array<Omit<Transaction, "id">> = [];
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:482:      done++;
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:483:      setOcrProgress(Math.round((done / list.length) * 100));
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:484:      setOcrStatus(`Toplu fiþ iþleniyor… (${done}/${list.length})`);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:485:    }
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:486:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:488:    txs.sort((a, b) => a.ts - b.ts);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:489:
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:490:    addTransactionsBulk(txs);
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:491:    setOcrStatus(`Toplu fiþ eklendi: ${txs.length} adet.`);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:492:    setOcrBusy(false);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:493:    onClose();
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:534:    setOcrProgress(0);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:535:    
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:536:setOcrStatus("Fiþ okunuyor…");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:537:setVisionStatus("");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:538:try {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:559:  }
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:560:  applyParsed(text, dataUrlOptimized);
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:561:  setOcrStatus("Fiþ okundu ve alanlar dolduruldu.");
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:562:} catch (e: any) {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:563:  setOcrStatus(`Okuma hata: ${e?.message || "Bilinmeyen"}`);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:650:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:651:            <label className="grid gap-2 text-xs text-slate-300 md:col-span-2">
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:652:              Fiþ No
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:653:              <input
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:654:                value={receiptNo}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:690:              <div className="flex flex-wrap items-center justify-between gap-3">
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:691:                <div>
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:692:                  <div className="text-sm font-semibold text-slate-100">Fiþ (kamera veya foto)</div>
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:693:                  <div className="text-xs text-slate-400">Fiþi okutunca kategori, tutar, firma ve plaka otomatik doldurulur.</div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:694:                </div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:695:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:698:                    <ImagePlus className="h-4 w-4" />
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:699:                    Foto Yükle
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:700:                    <input type="file" accept="image/*" className="hidden" onChange={(e) => onPickSingleFile(e.target.files?.[0] ?? null)} />
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:701:                  </label>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:702:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:703:                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 [color-scheme:dark]">
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:704:                    <UploadCloud className="h-4 w-4" />
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:705:                    Toplu (?50)
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:706:                    <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => onPickBulkFiles(e.target.files)} />
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:707:                  </label>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:708:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:722:                  <img
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:723:                    src={receipt.imageDataUrl}
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:724:                    alt="Fiþ"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:725:                    className="h-28 w-full rounded-2xl border border-white/10 object-cover"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:726:                  />
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:730:                      {ocrBusy && <Loader2 className="h-4 w-4 animate-spin text-slate-300" />}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:731:                    </div>
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:732:                    <div className="mt-2 text-slate-300">{ocrStatus || "Fiþ eklendi. Okumak için bir aksiyon seç."}</div>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:733:                    {ocrBusy && (
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\TransactionModal.tsx:734:                      <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/10">
