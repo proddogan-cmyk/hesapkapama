@@ -1,0 +1,32 @@
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:5:import clsx from "clsx";
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:6:import { Pencil, ReceiptText, Trash2 } from "lucide-react";
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:7:import ReceiptViewer from "@/components/ReceiptViewer";
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:8:import TransactionModal from "@/components/TransactionModal";
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:9:import { ProjectTabs } from "@/components/ProjectTabs";
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:30:  const [editTx, setEditTx] = React.useState<Transaction | null>(null);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:31:
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:32:  const [receiptOpen, setReceiptOpen] = React.useState(false);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:33:  const [receiptSrc, setReceiptSrc] = React.useState<string | null>(null);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:34:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:41:  }, [projects, selectedProjectId, selectProject]);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:42:
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:43:  const openReceipt = (src: string) => {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:44:    setReceiptSrc(src);
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:45:    setReceiptOpen(true);
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:46:  };
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:47:
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:168:                          <button
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:169:                            type="button"
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:170:                            onClick={() => openReceipt(tx.receipt?.imageDataUrl as string)}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:171:                            className="inline-flex h-7 w-7 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:172:                            aria-label="Fiþi aç"
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:228:        }}
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:229:      />
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:230:      <ReceiptViewer open={receiptOpen} src={receiptSrc} onClose={() => setReceiptOpen(false)} />
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:231:    </>
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\app\app\page.tsx:232:  );
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:4:import { X } from "lucide-react";
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:5:
+> C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:6:export default function ReceiptViewer({ open, src, onClose }: { open: boolean; src?: string | null; onClose: () => void }) {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:7:  React.useEffect(() => {
+  C:\Users\PC\Downloads\hesapkapama_v2_continue (2)\hesapkapama.com_v2_stable_full_fix_layout\hesapkapama\components\ReceiptViewer.tsx:8:    if (!open) return;
