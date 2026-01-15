@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getProfile, saveProfile, type HKProfile } from "@/lib/server/hkdb";
 
 /**
@@ -22,10 +22,10 @@ function pickUserKey(fallbackLocalUserId?: string) {
   return "";
 }
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const localUserId = searchParams.get("localUserId") || "";
-  const userKey = pickUserKey(localUserId);
+  const userKey = await pickUserKey(localUserId);
 
   if (!userKey) return NextResponse.json({ profile: null }, { status: 200 });
 
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
   return NextResponse.json({ profile }, { status: 200 });
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   let body: any = null;
   try {
     body = await req.json();
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
   }
 
   const localUserId = (body?.localUserId || "") as string;
-  const userKey = pickUserKey(localUserId);
+  const userKey = await pickUserKey(localUserId);
 
   if (!userKey) {
     return NextResponse.json({ ok: false, error: "Missing user identity" }, { status: 400 });

@@ -1,12 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { updateDb } from "@/lib/server/fileDb";
 
-export async function POST(req: Request, ctx: { params: { transferId: string } }) {
-  const { userId } = auth();
+export async function POST(req: NextRequest, context: { params: Promise<{ transferId: string; }> }) {
+  const { transferId } = await context.params;
+  const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  const transferId = ctx.params.transferId;
   const body = (await req.json()) as { action?: "approve" | "reject" };
   const action = body?.action;
 

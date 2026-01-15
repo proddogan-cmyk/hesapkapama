@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { consumeCreditsOrThrow } from "@/lib/server/fileDb";
 import path from "path";
 import fs from "fs/promises";
 import ExcelJS from "exceljs";
+import { Buffer } from "node:buffer";
 
 import type { Transaction, Category } from "@/lib/types";
 
 export const runtime = "nodejs";
 
 type Body = {
+  requestId?: string;
+  localUserId?: string;
   fileName?: string;
   projectName?: string;
   profile?: { firstName?: string; lastName?: string };
@@ -191,7 +196,7 @@ function copyRowStyle(src: ExcelJS.Row, dst: ExcelJS.Row) {
   dst.height = src.height;
   dst.hidden = src.hidden;
   dst.outlineLevel = src.outlineLevel;
-  dst.style = { ...src.style };
+  (dst as any).style = { ...((src as any).style ?? {}) };
 
   src.eachCell({ includeEmpty: true }, (cell, colNumber) => {
     const d = dst.getCell(colNumber);
@@ -287,6 +292,36 @@ function writeRows(
 export async function POST(req: Request) {
   try {
     const body = (await req.json().catch(() => null)) as Body | null;
+    if (!body || typeof body !== "object") return NextResponse.json({ error: "bad_request" }, { status: 400 });
+
+    const { userId: clerkUserId } = await auth();
+    const headerLocal = String(req.headers.get("x-local-user-id") || "").trim();
+    const bodyLocal = String((body as any).localUserId || "").trim();
+    const localUserId = headerLocal || bodyLocal;
+
+    const userId = clerkUserId || (localUserId.startsWith("local_") ? localUserId : "");
+    if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+    const requestId =
+      String((body as any).requestId || "").trim() || `export_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+    try {
+      await consumeCreditsOrThrow({
+        userId,
+        kind: "export",
+        amount: 200,
+        referenceId: requestId,
+        idempotencyKey: `export_${userId}_${requestId}`,
+      });
+    } catch (e: any) {
+      if (e?.code === "insufficient_credits") {
+        return NextResponse.json(
+          { ok: false, error: "insufficient_credits", balance: e.balance, required: e.required },
+          { status: 402 }
+        );
+      }
+      return NextResponse.json({ ok: false, error: "credit_check_failed" }, { status: 500 });
+    }
 
     const transactions = Array.isArray(body?.transactions) ? body!.transactions : [];
     const fileName = String(body?.fileName || "HesapKapama.xlsx").replace(/[\\/\n\r\t]/g, "_");
@@ -297,7 +332,8 @@ export async function POST(req: Request) {
     const wb = new ExcelJS.Workbook();
     // Preserve as much template fidelity as possible
     wb.calcProperties.fullCalcOnLoad = true;
-    await wb.xlsx.load(buf);
+    const _buf = Buffer.isBuffer(buf) ? buf : Buffer.from(buf as any);
+    await wb.xlsx.load(_buf as any);
 
     
     // Fill TOPLAM sheet header fields without breaking template structure
@@ -312,7 +348,7 @@ export async function POST(req: Request) {
       if (ln) wsToplam.getCell("B7").value = ln;
     }
 
-const expense = transactions.filter((t) => t.kind === "expense");
+    const expense = transactions.filter((t) => t.kind === "expense");
     const income = transactions.filter((t) => t.kind === "income");
 
     // Fill TOPLAM sheet "ALINAN AVANSLAR" table (A28:B32) using our data.

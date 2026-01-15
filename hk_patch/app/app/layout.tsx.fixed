@@ -1,0 +1,72 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { SignedIn, SignedOut, RedirectToSignIn, UserButton, useUser } from "@clerk/nextjs";
+import { StoreProvider, useAppStore } from "@/lib/store";
+import { Logo } from "@/components/Logo";
+import { MobileNav } from "@/components/MobileNav";
+import { AppGate } from "@/components/AppGate";
+import { Fade } from "@/components/Fade";
+
+function Header() {
+  const profile = useAppStore((s) => s.profile);
+
+  const headerText = profile
+    ? profile.bizType === "company"
+      ? `${profile.companyName ?? ""} ${profile.firstName} ${profile.lastName} – ${profile.title}`.trim()
+      : `${profile.firstName} ${profile.lastName} – ${profile.title}`.trim()
+    : "Profil…";
+
+  return (
+    <header className="sticky top-0 z-[50] border-b border-white/10 bg-slate-950/85 backdrop-blur">
+      <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+        <Logo variant="icon" href="/app" />
+        <div className="flex items-center gap-3">
+          <div className="hidden rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-200 md:block">
+            {headerText}
+          </div>
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: "h-9 w-9",
+              },
+            }}
+          />
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const { user, isLoaded } = useUser();
+  const userId = user?.id;
+
+  if (!isLoaded) {
+    return <div className="min-h-screen bg-slate-950" />;
+  }
+
+  return (
+    <>
+      <SignedIn>
+      {userId ? (
+        <StoreProvider userId={userId}>
+          <div className="min-h-screen bg-slate-950">
+            <Header />
+            <main className="mx-auto max-w-3xl px-6 pb-32 pt-6">
+              <AppGate>
+                <Fade>{children}</Fade>
+              </AppGate>
+            </main>
+            <MobileNav />
+          </div>
+        </StoreProvider>
+      ) : null}
+    </SignedIn>
+      <SignedOut>
+      <RedirectToSignIn />
+    </SignedOut>
+    </>
+  );
+}

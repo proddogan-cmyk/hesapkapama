@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { putUserState } from "@/lib/server/fileDb";
 
@@ -12,8 +12,8 @@ type Body = {
   nameTags?: string[];
 };
 
-export async function POST(req: Request) {
-  const { userId } = auth();
+export async function POST(req: NextRequest) {
+  const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const body = (await req.json().catch(() => null)) as Body | null;

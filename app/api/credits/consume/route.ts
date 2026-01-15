@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { consumeCreditsOrThrow } from "@/lib/server/fileDb";
 
@@ -12,8 +12,8 @@ type Body = {
   localUserId?: string;
 };
 
-export async function POST(req: Request) {
-  const { userId: clerkUserId } = auth();
+export async function POST(req: NextRequest) {
+  const { userId: clerkUserId } = await auth();
 
   const body = (await req.json().catch(() => null)) as Body | null;
   if (!body || typeof body !== "object") return NextResponse.json({ error: "bad_request" }, { status: 400 });

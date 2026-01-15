@@ -1,42 +1,138 @@
-import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
-import { updateDb } from "@/lib/server/fileDb";
+import { NextRequest, NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
-export async function POST(req: Request, ctx: { params: { teamId: string } }) {
-  const { userId } = auth();
-  if (!userId) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+type TeamMember = {
+  id: string;
+  name: string;
+  role: string;
+  status?: "active" | "pending";
+};
 
-  const teamId = ctx.params.teamId;
-  const body = (await req.json()) as { requestId?: string; action?: "approve" | "reject" };
-  const requestId = String(body?.requestId || "").trim();
-  const action = body?.action;
+type Team = {
+  id: string;
+  name: string;
+  projectName: string;
+  ownerId: string;
+  joinCode: string;
+  members: TeamMember[];
+  pendingMembers: TeamMember[];
+  createdAt: string;
+};
 
-  if (!requestId || (action !== "approve" && action !== "reject")) {
-    return NextResponse.json({ error: "bad_request" }, { status: 400 });
+type Db = {
+  teams: Team[];
+};
+
+const DB_FILENAME = ".hkdb.json";
+
+function dbPath() {
+  return path.join(process.cwd(), DB_FILENAME);
+}
+
+function safeReadDb(): Db {
+  try {
+    const p = dbPath();
+    if (!fs.existsSync(p)) return { teams: [] };
+    const raw = fs.readFileSync(p, "utf-8");
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return { teams: [] };
+    if (!Array.isArray(parsed.teams)) return { teams: [] };
+    return { teams: parsed.teams as Team[] };
+  } catch {
+    return { teams: [] };
   }
+}
 
-  await updateDb((db) => {
-    const team = db.teams.find((t) => t.id === teamId);
-    if (!team) throw new Error("team_not_found");
-    if (team.ownerUserId !== userId) throw new Error("forbidden");
+function safeWriteDb(db: Db) {
+  const p = dbPath();
+  fs.writeFileSync(p, JSON.stringify(db, null, 2), "utf-8");
+}
 
-    const jr = db.joinRequests.find((r) => r.id === requestId && r.teamId === teamId);
-    if (!jr) throw new Error("request_not_found");
-    if (jr.status !== "pending") return;
+function uid(prefix = "id") {
+  return `${prefix}_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`;
+}
 
-    if (action === "reject") {
-      jr.status = "rejected";
-      return;
+function makeJoinCode(existing: Set<string>) {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  for (let i = 0; i < 1000; i++) {
+    let code = "HK-";
+    for (let j = 0; j < 6; j++) code += alphabet[Math.floor(Math.random() * alphabet.length)];
+    if (!existing.has(code)) return code;
+  }
+  return "HK-" + uid("CODE").slice(-6).toUpperCase();
+}
+
+export async function GET(req: NextRequest, context: { params: Promise<{ teamId: string; }> }) {
+  const { teamId } = await context.params;
+  const db = safeReadDb();
+  return NextResponse.json({ ok: true, teams: db.teams });
+}
+
+export async function POST(req: NextRequest, context: { params: Promise<{ teamId: string; }> }) {
+  const { teamId } = await context.params;
+  try {
+    const body = await req.json().catch(() => ({} as any));
+    const name = String(body.name || body.teamName || "").trim();
+    const projectName = String(body.projectName || "").trim();
+    const ownerId = String(body.ownerId || "").trim();
+
+    if (!name || !projectName) {
+      return NextResponse.json({ ok: false, error: "Ekip adı ve proje adı zorunlu." }, { status: 400 });
+    }
+    if (!ownerId) {
+      return NextResponse.json({ ok: false, error: "ownerId zorunlu." }, { status: 400 });
     }
 
-    // approve
-    jr.status = "approved";
+    const db = safeReadDb();
+    const existingCodes = new Set(db.teams.map((t) => t.joinCode));
+    const team: Team = {
+      id: uid("team"),
+      name,
+      projectName,
+      ownerId,
+      joinCode: makeJoinCode(existingCodes),
+      members: [],
+      pendingMembers: [],
+      createdAt: new Date().toISOString(),
+    };
 
-    // add member
-    if (!team.members.some((m) => m.userId === jr.userId)) {
-      team.members.push({ userId: jr.userId, displayName: jr.displayName, role: jr.role, joinedAt: Date.now() });
+    db.teams.unshift(team);
+    safeWriteDb(db);
+
+    return NextResponse.json({ ok: true, team, teams: db.teams });
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: e?.message || "Sunucu hatası." }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest, context: { params: Promise<{ teamId: string; }> }) {
+  const { teamId } = await context.params;
+  try {
+    const body = await req.json().catch(() => ({} as any));
+    const teamId = String(teamIdParam || body.teamId || "").trim();
+    const ownerId = String(body.ownerId || "").trim();
+
+    if (!teamId) return NextResponse.json({ ok: false, error: "teamId zorunlu." }, { status: 400 });
+
+    const db = safeReadDb();
+    const idx = db.teams.findIndex((t) => t.id === teamId);
+    if (idx === -1) return NextResponse.json({ ok: false, error: "Ekip bulunamadı." }, { status: 404 });
+
+    const team = db.teams[idx];
+    const hasOwner = Boolean(team.ownerId);
+    if (hasOwner && !ownerId) {
+      return NextResponse.json({ ok: false, error: "ownerId zorunlu." }, { status: 400 });
     }
-  });
+    if (hasOwner && team.ownerId !== ownerId) {
+      return NextResponse.json({ ok: false, error: "Bu ekibi silme yetkin yok." }, { status: 403 });
+    }
 
-  return NextResponse.json({ ok: true });
+    db.teams.splice(idx, 1);
+    safeWriteDb(db);
+
+    return NextResponse.json({ ok: true, teams: db.teams });
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: e?.message || "Sunucu hatası." }, { status: 500 });
+  }
 }

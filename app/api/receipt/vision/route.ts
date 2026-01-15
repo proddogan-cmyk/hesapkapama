@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { consumeCreditsOrThrow, refundCredits } from "@/lib/server/fileDb";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   return NextResponse.json({ ok: true, route: "receipt/vision" });
 }
 
@@ -18,7 +18,7 @@ function normalizeMerchantName(raw: string): string {
   let s = String(raw || "").trim();
   if (!s) return "";
   // Collapse spaces and remove common legal suffixes / corporate terms
-  s = s.replace(/\s+/g, " ").toUpperCase("tr-TR");
+  s = s.replace(/\s+/g, " ").toLocaleUpperCase("tr-TR");
 
   // Remove pipes and trailing punctuation
   s = s.replace(/[\|•]+/g, " ").replace(/\s+/g, " ").trim();
@@ -62,8 +62,8 @@ function buildShortDescription(extracted: any) {
 }
 
 
-export async function POST(req: Request) {
-  const { userId: clerkUserId } = auth();
+export async function POST(req: NextRequest) {
+  const { userId: clerkUserId } = await auth();
 
   try {
     const body = await req.json().catch(() => null);
