@@ -105,6 +105,12 @@ export function StoreProvider({ userId, children }: { userId: string; children: 
   return <StoreContext.Provider value={storeRef.current}>{children}</StoreContext.Provider>;
 }
 
+
+export function useStore() {
+  const store = React.useContext(StoreContext);
+  if (!store) throw new Error("StoreProvider missing");
+  return store;
+}
 export function useAppStore<T>(selector: (s: AppState) => T): T {
   const store = React.useContext(StoreContext);
   if (!store) throw new Error("StoreProvider missing");
@@ -169,26 +175,39 @@ export function useStoreActions() {
     store.setState((s) => ({ ...s, profile }));
 
 const addProject = (name: string) => {
-  const clean = name.trim();
+  const clean = String(name || "").trim();
   if (!clean) return undefined;
 
   const existing = store.getState().projects.find((p) => p.name === clean);
   if (existing) {
-    store.setState({ selectedProjectId: existing.id });
+    store.setState((s) => ({ ...s, selectedProjectId: existing.id }));
     return existing.id;
   }
 
   const id = safeUUID();
   store.setState((s) => {
     const p: Project = { id, name: clean, createdAt: Date.now() };
-    return { ...s, projects: [p, ...s.projects], selectedProjectId: p.id };
+    return { ...s, projects: [p, ...s.projects], selectedProjectId: id };
   });
+
   return id;
 };
 
-
   const selectProject = (id: string) =>
     store.setState((s) => ({ ...s, selectedProjectId: id }));
+
+  const deleteProject = (id: string) =>
+    store.setState((s) => {
+      const projects = s.projects.filter((p) => p.id !== id);
+      const transactions = s.transactions.filter((t) => t.projectId !== id);
+
+      let selectedProjectId = s.selectedProjectId;
+      if (selectedProjectId === id) selectedProjectId = projects[0]?.id;
+      if (!selectedProjectId && projects.length > 0) selectedProjectId = projects[0].id;
+
+      return { ...s, projects, transactions, selectedProjectId };
+    });
+
 
   const deleteTransaction = (id: string) =>
     store.setState((s) => ({ ...s, transactions: s.transactions.filter((t) => t.id !== id) }));
@@ -282,7 +301,7 @@ const updateTransaction = (id: string, patch: Partial<Omit<Transaction, "id">>) 
     });
   };
 
-  return { setProfile, addProject, selectProject, addTransaction, addTransactionsBulk, updateTransaction, deleteTransaction, upsertNameTag };
+  return { setProfile, addProject, selectProject, deleteProject, addTransaction, addTransactionsBulk, updateTransaction, deleteTransaction, upsertNameTag };
 }
 
 export const CATEGORIES: Category[] = [

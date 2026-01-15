@@ -6,6 +6,7 @@ type TeamMember = {
   id: string;
   name: string;
   role: string;
+  phone?: string;
   status?: "active" | "pending";
 };
 
@@ -59,6 +60,7 @@ export async function POST(req: Request) {
     const teamId = String(body.teamId || "").trim();
     const name = String(body.name || "").trim();
     const role = String(body.role || "Yapım Asistanı").trim() || "Yapım Asistanı";
+    const phone = String(body.phone || "").trim();
 
     if (!teamId) return NextResponse.json({ ok: false, error: "teamId zorunlu." }, { status: 400 });
     if (!name) return NextResponse.json({ ok: false, error: "Üye adı zorunlu." }, { status: 400 });
@@ -71,7 +73,7 @@ export async function POST(req: Request) {
     const already = team.members.some((m) => String(m.name).toLowerCase() === name.toLowerCase());
     if (already) return NextResponse.json({ ok: true, team, message: "Zaten var." });
 
-    const mem: TeamMember = { id: uid("mem"), name, role, status: "active" };
+    const mem: TeamMember = { id: uid("mem"), name, role, phone: phone || undefined, status: "active" };
     team.members.push(mem);
 
     safeWriteDb(db);

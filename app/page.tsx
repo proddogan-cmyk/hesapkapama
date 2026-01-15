@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { Logo } from "@/components/Logo";
+import { InstallLandingCard } from "@/components/InstallLandingCard";
 
 export default function HomePage() {
   return (
@@ -54,7 +55,12 @@ export default function HomePage() {
               <div className="text-xs text-slate-400">
                 Kayıt ol → Profilini tamamla → Proje aç → + / – ile işlemleri gir.
               </div>
+            
+
+            <div className="mt-4">
+              <InstallLandingCard />
             </div>
+</div>
 
             <SignedIn>
               <div className="mt-5 text-sm text-emerald-200">

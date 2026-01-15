@@ -4,7 +4,7 @@ import path from "path";
 
 export const runtime = "nodejs";
 
-type TeamMember = { id: string; name: string; role: string; status?: "active" | "pending" };
+type TeamMember = { id: string; name: string; role: string; phone?: string; status?: "active" | "pending" };
 type Team = {
   id: string;
   name: string;

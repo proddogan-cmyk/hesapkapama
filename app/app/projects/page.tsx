@@ -63,8 +63,8 @@ export default function ProjectsPage() {
   const localProjects = useAppStore((s) => s.projects);
   const profile = useAppStore((s) => s.profile);
 
-  const { deleteProject } = useStoreActions();
-  const allTx = useAppStore((s) => s.transactions);
+  const { deleteProject, addProject } = useStoreActions();
+const allTx = useAppStore((s) => s.transactions);
 
 
   const [projects, setProjects] = React.useState<string[]>([]);
@@ -72,6 +72,9 @@ export default function ProjectsPage() {
   const [listLoading, setListLoading] = React.useState(false);
   const [files, setFiles] = React.useState<{ calendar: DocFile[]; scenario: DocFile[] }>({ calendar: [], scenario: [] });
   const [msg, setMsg] = React.useState<string | null>(null);
+
+  const [newProjectName, setNewProjectName] = React.useState<string>("");
+  const [addBusy, setAddBusy] = React.useState(false);
 
   const name = React.useMemo(() => userDisplayName(profile), [profile]);
   const role = React.useMemo(() => userRole(profile), [profile]);
@@ -209,7 +212,43 @@ export default function ProjectsPage() {
         <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
           <div className="text-xs font-semibold text-slate-200">Proje Seç</div>
 
-          {projects.length === 0 ? (
+          
+          <div className="mt-3 rounded-3xl border border-white/10 bg-slate-950/40 p-3">
+            <div className="text-xs font-semibold text-slate-200">Proje Ekle</div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <input
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                placeholder="Örn: AJet Kids / Hadi Bi Market"
+                className="h-11 flex-1 min-w-[220px] rounded-2xl border border-white/10 bg-slate-950/60 px-3 text-sm text-slate-100 outline-none placeholder:text-slate-500 [color-scheme:dark]"
+              />
+              <button
+                type="button"
+                disabled={!newProjectName.trim() || addBusy}
+                onClick={() => {
+                  const name = newProjectName.trim();
+                  if (!name) return;
+                  setAddBusy(true);
+                  try {
+                    const id = addProject(name);
+                    // update local list
+                    setNewProjectName("");
+                    setSelected(name);
+                    // refresh list to include
+                    setProjects((prev) => uniq([name, ...prev]));
+                  } finally {
+                    setAddBusy(false);
+                  }
+                }}
+                className="h-11 rounded-2xl bg-emerald-500 px-5 text-sm font-semibold text-slate-950 hover:bg-emerald-400 disabled:opacity-50"
+              >
+                Ekle
+              </button>
+            </div>
+            <div className="mt-2 text-[11px] text-slate-500">Bu proje cihazında kaydedilir. Ekip oluştururken de kullanılır.</div>
+          </div>
+
+{projects.length === 0 ? (
             <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-3 text-sm text-slate-300">
               Henüz proje yok. Ana sayfadan proje ekle veya ekip oluştur.
             </div>

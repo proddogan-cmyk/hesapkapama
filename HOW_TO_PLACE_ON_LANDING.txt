@@ -1,0 +1,22 @@
+Landing Card Placement (IMPORTANT)
+
+You said the card must be under the "Ücretsiz Başla" buttons on the landing page.
+
+This patch DOES NOT overwrite your landing page file (to avoid conflicts).
+You must add ONE line to your landing page component:
+
+1) Open: app/page.tsx   (landing /)
+2) Add import near top:
+   import { InstallLandingCard } from "@/components/InstallLandingCard";
+
+3) In JSX, place it right under the "Ücretsiz Başla" / action buttons area:
+
+   <div className="mt-4">
+     <InstallLandingCard />
+   </div>
+
+After that, the card will show ONLY on landing page (because you only render it there).
+
+Modal behavior:
+- Full-screen on mobile (100dvh/100dvw)
+- No horizontal scroll

@@ -4,7 +4,7 @@ import path from "path";
 
 export const runtime = "nodejs";
 
-type TeamMember = { id: string; name: string; role: string; status?: "active" | "pending" };
+type TeamMember = { id: string; name: string; role: string; phone?: string; status?: "active" | "pending" };
 type Team = {
   id: string;
   name: string;
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
 
     if (already) return NextResponse.json({ ok: true, team: t });
 
-    t.pendingMembers.push({ id: uid("mem"), name, role, status: "pending" });
+    t.pendingMembers.push({ id: uid("mem"), name, role, phone: phone || undefined, status: "pending" });
 
     safeWriteDb(db);
     return NextResponse.json({ ok: true, team: t });

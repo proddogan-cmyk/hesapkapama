@@ -2,12 +2,15 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
 import { StoreProvider, useAppStore, useStoreActions } from "@/lib/store";
 import { Logo } from "@/components/Logo";
 import { MobileNav } from "@/components/MobileNav";
 import { BottomActionBar } from "@/components/BottomActionBar";
 import { AppGate } from "@/components/AppGate";
 import { Fade } from "@/components/Fade";
+import { PageTransition } from "@/components/PageTransition";
+import { CloudSync } from "@/components/CloudSync";
 
 /**
  * NOTE:
@@ -158,24 +161,29 @@ function AdvanceSync() {
 }
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const [userId, setUserId] = React.useState<string>("");
+  const auth = useAuth();
+  const [fallbackId, setFallbackId] = React.useState<string>("");
 
   React.useEffect(() => {
-    setUserId(getOrCreateLocalUserId());
+    setFallbackId(getOrCreateLocalUserId());
   }, []);
 
-  if (!userId) {
-    return <div className="min-h-screen bg-slate-950" />;
-  }
+  // Prefer Clerk user when available; otherwise fallback to local user
+  const userId = auth.isLoaded && auth.userId ? auth.userId : fallbackId;
+
+  if (!userId) return <div className="min-h-screen bg-slate-950" />;
 
   return (
     <StoreProvider userId={userId}>
       <div className="min-h-screen bg-slate-950">
+        <CloudSync userId={userId} />
         <Header />
         <AdvanceSync />
         <main className="mx-auto max-w-3xl px-6 pb-32 pt-6">
           <AppGate>
-            <Fade>{children}</Fade>
+            <PageTransition>
+              <Fade>{children}</Fade>
+            </PageTransition>
           </AppGate>
         </main>
         <BottomActionBar />

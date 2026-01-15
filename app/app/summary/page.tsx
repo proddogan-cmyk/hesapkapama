@@ -6,9 +6,20 @@ import { Download, ArrowLeft } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { ProjectTabs } from "@/components/ProjectTabs";
 import { bySelectedProject, totals, categoryTotals, advanceByPerson } from "@/lib/selectors";
-import { exportToTemplateXlsx } from "@/lib/excel/export";
+
+
+function getLocalUserId(): string {
+  try {
+    return window.localStorage.getItem("hk_local_user_id_v1") || "";
+  } catch {
+    return "";
+  }
+}
+
+
 
 export default function SummaryPage() {
+  const profile = useAppStore((s) => s.profile);
   const selectedProjectId = useAppStore((s) => s.selectedProjectId);
   const projects = useAppStore((s) => s.projects);
   const txs = useAppStore((s) => bySelectedProject(s));
@@ -21,8 +32,37 @@ export default function SummaryPage() {
 
   const onExport = async () => {
     if (!selectedProjectId) return;
-    const fname = `HesapKapama_${(selectedProject?.name || "Proje").replace(/\s+/g, "_")}_${new Date().toISOString().slice(0,10)}.xlsx`;
-    await exportToTemplateXlsx("/templates/hesap-kapama-template.xls", txs, fname);
+
+    const fname = `HesapKapama_${(selectedProject?.name || "Proje").replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+    const res = await fetch("/api/export/excel", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+                localUserId: getLocalUserId(),
+        requestId: `x_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+fileName: fname,
+        projectName: selectedProject?.name || "",
+        profile: { firstName: profile?.firstName || "", lastName: profile?.lastName || "" },
+        transactions: txs,
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      alert((data && data.error) ? String(data.error) : `Excel çıktısı alınamadı (HTTP ${res.status}).`);
+      return;
+    }
+
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
   };
 
   return (
@@ -56,7 +96,7 @@ export default function SummaryPage() {
             className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-emerald-500 px-4 py-3 text-xs font-semibold text-slate-950 hover:bg-emerald-400 disabled:opacity-60"
           >
             <Download className="h-4 w-4" />
-            Excel Çıktı Al
+            Excel Çıktı Al (200 kredi)
           </button>
         </div>
       </div>

@@ -45,6 +45,7 @@ type TeamMember = {
   id: string;
   name: string;
   role: MemberRole;
+  phone?: string;
   status?: "active" | "pending";
 };
 
@@ -111,6 +112,7 @@ const myRole = React.useMemo(() => {
   const [manualTeamId, setManualTeamId] = React.useState<string | null>(null);
   const [manualName, setManualName] = React.useState("");
   const [manualRole, setManualRole] = React.useState<MemberRole>("Yapım Asistanı");
+  const [manualPhone, setManualPhone] = React.useState("");
   const [manualBusy, setManualBusy] = React.useState(false);
 
   const [deleteBusyId, setDeleteBusyId] = React.useState<string | null>(null);
@@ -362,11 +364,7 @@ const onDecideAdvance = async (id: string, decision: "accept" | "reject") => {
       const res = await fetch("/api/team/member", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          teamId: manualTeamId,
-          name: manualName.trim(),
-          role: manualRole,
-        }),
+        body: JSON.stringify({ teamId: manualTeamId, name: manualName.trim(), role: manualRole, phone: manualPhone.trim() }),
       });
 
       const data = await safeJson(res);
@@ -377,6 +375,7 @@ const onDecideAdvance = async (id: string, decision: "accept" | "reject") => {
 
       setManualName("");
       setManualRole("Yapım Asistanı");
+                      setManualPhone("");
       setManualTeamId(null);
       await refresh();
     } catch (e: any) {
@@ -610,6 +609,7 @@ const onDecideAdvance = async (id: string, decision: "accept" | "reject") => {
                       setManualTeamId((prev) => (prev === t.id ? null : t.id));
                       setManualName("");
                       setManualRole("Yapım Asistanı");
+                      setManualPhone("");
                     }}
                   >
                     <UserPlus className="h-4 w-4" />
@@ -620,7 +620,7 @@ const onDecideAdvance = async (id: string, decision: "accept" | "reject") => {
                 {manualTeamId === t.id ? (
                   <div className="mt-3 rounded-3xl border border-white/10 bg-white/5 p-4">
                     <div className="text-xs font-semibold text-slate-200">Üye</div>
-                    <div className="mt-3 grid gap-3 md:grid-cols-[1fr_240px_140px]">
+                    <div className="mt-3 grid gap-3 md:grid-cols-[1fr_200px_180px_140px]">
                       <input
                         value={manualName}
                         onChange={(e) => setManualName(e.target.value)}
@@ -638,6 +638,13 @@ const onDecideAdvance = async (id: string, decision: "accept" | "reject") => {
                           </option>
                         ))}
                       </select>
+
+                      <input
+                        value={manualPhone}
+                        onChange={(e) => setManualPhone(e.target.value)}
+                        placeholder="Cep (örn: 05xx...)"
+                        className="h-11 w-full rounded-2xl border border-white/10 bg-slate-950/40 px-3 text-sm text-slate-100 outline-none focus:ring-2 focus:ring-white/10"
+                      />
                       <button
                         type="button"
                         onClick={onManualAdd}
@@ -666,7 +673,7 @@ const onDecideAdvance = async (id: string, decision: "accept" | "reject") => {
                           <div key={m.id} className="flex items-center justify-between">
                             <div className="min-w-0">
                               <div className="truncate text-sm text-slate-100">{m.name}</div>
-                              <div className="text-xs text-slate-400">{m.role}</div>
+                              <div className="text-xs text-slate-400">{m.role}{(m as any).phone ? ` • ${(m as any).phone}` : ""}</div>
                             </div>
                           </div>
                         ))
@@ -684,7 +691,7 @@ const onDecideAdvance = async (id: string, decision: "accept" | "reject") => {
                       <div key={m.id} className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-slate-950/30 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
                         <div className="min-w-0">
                           <div className="truncate text-sm text-slate-100">{m.name}</div>
-                          <div className="text-xs text-slate-400">{m.role}</div>
+                          <div className="text-xs text-slate-400">{m.role}{(m as any).phone ? ` • ${(m as any).phone}` : ""}</div>
                         </div>
 
                         {canDelete ? (

@@ -1,24 +1,28 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Minus, Camera, Images } from "lucide-react";
+import { Plus, Minus, ReceiptText, X } from "lucide-react";
 import TransactionModal from "@/components/TransactionModal";
-import { useAppStore, useStoreActions } from "@/lib/store";
+import ReceiptApprovalModal from "@/components/ReceiptApprovalModal";
+import { useAppStore } from "@/lib/store";
 
 type Kind = "income" | "expense";
 
 export function BottomActionBar() {
   const projects = useAppStore((s) => s.projects);
   const selectedProjectId = useAppStore((s) => s.selectedProjectId);
-  const { selectProject } = useStoreActions();
 
   const [open, setOpen] = React.useState(false);
   const [kind, setKind] = React.useState<Kind>("expense");
-  const [prefillFiles, setPrefillFiles] = React.useState<File[] | null>(null);
 
-  const camRef = React.useRef<HTMLInputElement | null>(null);
-  const galleryRef = React.useRef<HTMLInputElement | null>(null);
-  const multiRef = React.useRef<HTMLInputElement | null>(null);
+  // Receipt approval flow (camera/gallery -> AI parse -> confirm -> add to project)
+  const [receiptMenuOpen, setReceiptMenuOpen] = React.useState(false);
+  const [receiptOpen, setReceiptOpen] = React.useState(false);
+  const [receiptFiles, setReceiptFiles] = React.useState<File[]>([]);
+  const [receiptProjectId, setReceiptProjectId] = React.useState<string | null>(null);
+
+  const receiptCamRef = React.useRef<HTMLInputElement | null>(null);
+  const receiptGalleryRef = React.useRef<HTMLInputElement | null>(null);
 
   // remember last real project selection
   React.useEffect(() => {
@@ -38,78 +42,77 @@ export function BottomActionBar() {
       return null;
     }
 
-    let next = projects[0].id;
+    // Try last saved project
+    let last = "";
     try {
-      const last = window.localStorage.getItem("hk_last_project_v1");
-      if (last && projects.some((p) => p.id === last)) next = last;
+      last = window.localStorage.getItem("hk_last_project_v1") || "";
     } catch {}
 
-    selectProject(next);
-    return next;
-  }, [selectedProjectId, projects, selectProject]);
+    const fallback =
+      (last && projects.find((p) => p.id === last)?.id) ||
+      projects[0]?.id ||
+      null;
+
+    if (!fallback) return null;
+
+    alert("Fiş eklemek için bir proje seçmen gerekiyor. Varsayılan proje kullanılacak.");
+    return fallback;
+  }, [projects, selectedProjectId]);
 
   const openTx = (k: Kind) => {
-    const pid = ensureWritableProject();
-    if (!pid) return;
     setKind(k);
-    setPrefillFiles(null);
-    setOpen(true);
-  };
-  const onCameraClick = () => {
-    const pid = ensureWritableProject();
-    if (!pid) return;
-    const ok = confirm('Kamerayı açmak için "Tamam", galeriden seçmek için "İptal" butonuna bas.');
-    if (ok) camRef.current?.click();
-    else galleryRef.current?.click();
-  };
-
-
-  const openTxWithFiles = (files: File[]) => {
-    const pid = ensureWritableProject();
-    if (!pid) return;
-    setKind("expense");
-    setPrefillFiles(files);
     setOpen(true);
   };
 
-  const onCameraPick = (files: FileList | null) => {
-    const f = files?.[0];
-    if (!f) return;
-    openTxWithFiles([f]);
+  const openReceiptPicker = (mode: "camera" | "gallery") => {
+    const pid = ensureWritableProject();
+    if (!pid) return;
+
+    setReceiptProjectId(pid);
+    setReceiptMenuOpen(false);
+
+    if (mode === "camera") receiptCamRef.current?.click();
+    else receiptGalleryRef.current?.click();
   };
 
-  const onMultiPick = (files: FileList | null) => {
+  const onReceiptFilesPicked = (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    openTxWithFiles(Array.from(files).slice(0, 50));
+
+    const pid = ensureWritableProject();
+    if (!pid) return;
+
+    setReceiptProjectId(pid);
+    setReceiptFiles(Array.from(files).slice(0, 50));
+    setReceiptOpen(true);
   };
 
   return (
     <>
-      {/* hidden inputs */}
+      {/* Hidden inputs */}
       <input
-        ref={camRef}
+        ref={receiptCamRef}
         type="file"
         accept="image/*"
         capture="environment"
         className="hidden"
-        onChange={(e) => onCameraPick(e.target.files)}
+        onChange={(e) => {
+          onReceiptFilesPicked(e.target.files);
+          e.currentTarget.value = "";
+        }}
       />
       <input
-        ref={galleryRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => onCameraPick(e.target.files)}
-      />
-      <input
-        ref={multiRef}
+        ref={receiptGalleryRef}
         type="file"
         accept="image/*"
         multiple
         className="hidden"
-        onChange={(e) => onMultiPick(e.target.files)}
+        onChange={(e) => {
+          onReceiptFilesPicked(e.target.files);
+          e.currentTarget.value = "";
+        }}
       />
 
+      {/* Bottom bar */}
       <div className="fixed bottom-[72px] left-1/2 z-[65] -translate-x-1/2">
         <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-slate-950/75 p-2 shadow-2xl backdrop-blur">
           <button
@@ -134,33 +137,77 @@ export function BottomActionBar() {
 
           <button
             type="button"
-            onClick={() => camRef.current?.click()}
+            onClick={() => setReceiptMenuOpen(true)}
             className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
-            aria-label="Kamera veya Galeri (Tek fiş)"
-            title="Kamera veya Galeri (Tek fiş)"
+            aria-label="Fiş ekle"
+            title="Fiş ekle"
           >
-            <Camera className="h-5 w-5" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => multiRef.current?.click()}
-            className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
-            aria-label="Çoklu foto"
-            title="Çoklu foto"
-          >
-            <Images className="h-5 w-5" />
+            <ReceiptText className="h-5 w-5" />
           </button>
         </div>
       </div>
 
+      {/* Receipt picker modal */}
+      {receiptMenuOpen ? (
+        <div className="fixed inset-0 z-[80]">
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setReceiptMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-xl">
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="text-sm font-semibold text-slate-100">Fiş Ekle</div>
+              <button
+                type="button"
+                onClick={() => setReceiptMenuOpen(false)}
+                className="rounded-xl p-2 text-slate-300 hover:bg-white/10"
+                aria-label="Kapat"
+                title="Kapat"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2 px-4 pb-4">
+              <button
+                type="button"
+                onClick={() => openReceiptPicker("camera")}
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm font-semibold text-slate-100 hover:bg-white/10"
+              >
+                Kamera ile çek
+                <div className="mt-1 text-xs font-normal text-slate-400">Tek fiş</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => openReceiptPicker("gallery")}
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm font-semibold text-slate-100 hover:bg-white/10"
+              >
+                Galeriden seç
+                <div className="mt-1 text-xs font-normal text-slate-400">Tekli veya çoklu (en fazla 50)</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <TransactionModal
         open={open}
         kind={kind}
-        prefillFiles={prefillFiles}
         onClose={() => {
           setOpen(false);
-          setPrefillFiles(null);
+        }}
+      />
+
+      <ReceiptApprovalModal
+        open={receiptOpen}
+        projectId={receiptProjectId}
+        files={receiptFiles}
+        onClose={() => {
+          setReceiptOpen(false);
+          setReceiptFiles([]);
+          setReceiptProjectId(null);
         }}
       />
     </>
