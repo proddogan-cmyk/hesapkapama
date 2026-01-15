@@ -28,11 +28,26 @@ export type DbTeamMember = {
 export type DbTeam = {
   id: string;
   name: string;
+  projectName?: string;
   createdBy: string;
   createdAt: number;
   members: DbTeamMember[];
   joinRequests: { id: string; fromUserId: string; fromName: string; message?: string; createdAt: number }[];
-  transfers: any[];
+};
+
+export type DbTransfer = {
+  id: string;
+  teamId: string;
+  projectName?: string;
+  fromUserId: string;
+  fromDisplayName: string;
+  toUserId: string;
+  toDisplayName: string;
+  amount: number;
+  note?: string;
+  createdAt: number;
+  status: "pending" | "approved" | "rejected";
+  approvedAt?: number;
 };
 
 export type DbAdvanceItem = {
@@ -68,22 +83,24 @@ export type CreditLedgerEntry = {
 
 export type DbShape = {
   profiles: Record<string, DbProfile>;
-  teams: Record<string, DbTeam>;
+  teams: DbTeam[];
   advances: DbAdvanceItem[];
   states: Record<string, DbState>;
   creditBalances: Record<string, number>;
   creditLedger: CreditLedgerEntry[];
   processedIdempotency: Record<string, boolean>;
+  transfers: DbTransfer[];
 };
 
 const DEFAULT_DB: DbShape = {
   profiles: {},
-  teams: {},
+  teams: [],
   advances: [],
   states: {},
   creditBalances: {},
   creditLedger: [],
   processedIdempotency: {},
+  transfers: [],
 };
 
 function dbPath() {
@@ -99,16 +116,24 @@ async function readDb(): Promise<DbShape> {
     if (!parsed || typeof parsed !== "object") return { ...DEFAULT_DB };
 
     // Soft-migrate old shapes by layering defaults
+    const parsedTeams = (parsed as any).teams;
+    const teams = Array.isArray(parsedTeams)
+      ? parsedTeams
+      : parsedTeams && typeof parsedTeams === "object"
+        ? Object.values(parsedTeams)
+        : [];
+
     return {
       ...DEFAULT_DB,
       ...parsed,
       profiles: { ...DEFAULT_DB.profiles, ...(parsed.profiles || {}) },
-      teams: { ...DEFAULT_DB.teams, ...(parsed.teams || {}) },
+      teams,
       advances: Array.isArray(parsed.advances) ? parsed.advances : [],
       states: { ...DEFAULT_DB.states, ...(parsed.states || {}) },
       creditBalances: { ...DEFAULT_DB.creditBalances, ...(parsed.creditBalances || {}) },
       creditLedger: Array.isArray(parsed.creditLedger) ? parsed.creditLedger : [],
       processedIdempotency: { ...DEFAULT_DB.processedIdempotency, ...(parsed.processedIdempotency || {}) },
+      transfers: Array.isArray(parsed.transfers) ? parsed.transfers : [],
     };
   } catch {
     return { ...DEFAULT_DB };

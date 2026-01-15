@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { consumeCreditsOrThrow, refundCredits } from "@/lib/server/fileDb";
+import { randomUUID } from "node:crypto";
 
 export const runtime = "nodejs";
 
@@ -21,13 +22,13 @@ function normalizeMerchantName(raw: string): string {
   s = s.replace(/\s+/g, " ").toLocaleUpperCase("tr-TR");
 
   // Remove pipes and trailing punctuation
-  s = s.replace(/[\|•]+/g, " ").replace(/\s+/g, " ").trim();
+  s = s.replace(/[\|â€¢]+/g, " ").replace(/\s+/g, " ").trim();
 
   const stop = new Set([
-    "LTD", "LTD.", "LTDŞTİ", "LTD.ŞTİ", "LTD. ŞTİ.", "ŞTİ", "ŞTİ.", "A.Ş", "A.Ş.", "AS",
-    "SAN", "SAN.", "SANAYİ", "TİC", "TİC.", "TIC", "TIC.", "TİCARET", "DIŞ", "DIS", "DIŞTİC", "DİŞ",
-    "VE", "İNŞ", "INŞ", "INS", "İNŞ.", "UR", "UR.", "TUR", "TUR.", "PAZ", "PAZ.", "HİZ", "HIZ", "GIDA",
-    "OTOMOTİV", "PETROLÜ", "PETROLU", "PETROL", "ÜR", "ÜR.", "LTDŞ", "LIMITED"
+    "LTD", "LTD.", "LTDÅTÄ°", "LTD.ÅTÄ°", "LTD. ÅTÄ°.", "ÅTÄ°", "ÅTÄ°.", "A.Å", "A.Å.", "AS",
+    "SAN", "SAN.", "SANAYÄ°", "TÄ°C", "TÄ°C.", "TIC", "TIC.", "TÄ°CARET", "DIÅ", "DIS", "DIÅTÄ°C", "DÄ°Å",
+    "VE", "Ä°NÅ", "INÅ", "INS", "Ä°NÅ.", "UR", "UR.", "TUR", "TUR.", "PAZ", "PAZ.", "HÄ°Z", "HIZ", "GIDA",
+    "OTOMOTÄ°V", "PETROLÃœ", "PETROLU", "PETROL", "ÃœR", "ÃœR.", "LTDÅ", "LIMITED"
   ]);
 
   const tokens = s.split(" ").filter(Boolean);
@@ -63,6 +64,8 @@ function buildShortDescription(extracted: any) {
 
 
 export async function POST(req: NextRequest) {
+  let userId: string | null = null;
+  let requestId: string | null = null;
   const { userId: clerkUserId } = await auth();
 
   try {
@@ -71,7 +74,7 @@ export async function POST(req: NextRequest) {
     const userId = clerkUserId || (localUserId.startsWith('local_') ? localUserId : '');
     if (!userId) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
 
-    let requestId = "";
+    requestId = "";
     const imageDataUrl = String(body?.imageDataUrl || "").trim();
 
     if (!imageDataUrl || !imageDataUrl.startsWith("data:image/")) {
@@ -101,7 +104,7 @@ try {
 
     const key = process.env.OPENAI_API_KEY;
     if (!key) {
-      return NextResponse.json({ ok: false, error: "OPENAI_API_KEY .env.local içinde yok." }, { status: 500 });
+      return NextResponse.json({ ok: false, error: "OPENAI_API_KEY .env.local iÃ§inde yok." }, { status: 500 });
     }
 
     const model = process.env.OPENAI_RECEIPT_MODEL || "gpt-4.1-mini";
@@ -110,37 +113,37 @@ try {
       type: "object",
       additionalProperties: true,
       properties: {
-        category: { type: "string", description: "Kategori. Şunlardan biri: YEMEK, ULAŞIM, TAKSİ, İLETİŞİM, OFİS-KIRTASİYE, KONAKLAMA, MEKAN, SANAT, KOSTÜM, DİĞER, FİŞSİZ, AVANS" },
-        amount: { type: "number", description: "Toplam tutar (sadece sayı)" },
-        receiptNo: { type: "string", description: "Fiş no / belge no. Takside genelde 'Sıra No' buraya yazılmalı." },
-        merchant: { type: "string", description: "İşletme/Firma adı. Takside damga/ünvan veya üstteki isim." },
-        description: { type: "string", description: "Kısa açıklama. Genelde merchant. Taksi: 'İsim | Plaka: XX' gibi. Benzin: 'Shell | Plaka: XX' gibi." },
-        plate: { type: "string", description: "Araç plakası varsa." },
+        category: { type: "string", description: "Kategori. Åunlardan biri: YEMEK, ULAÅIM, TAKSÄ°, Ä°LETÄ°ÅÄ°M, OFÄ°S-KIRTASÄ°YE, KONAKLAMA, MEKAN, SANAT, KOSTÃœM, DÄ°ÄER, FÄ°ÅSÄ°Z, AVANS" },
+        amount: { type: "number", description: "Toplam tutar (sadece sayÄ±)" },
+        receiptNo: { type: "string", description: "FiÅŸ no / belge no. Takside genelde 'SÄ±ra No' buraya yazÄ±lmalÄ±." },
+        merchant: { type: "string", description: "Ä°ÅŸletme/Firma adÄ±. Takside damga/Ã¼nvan veya Ã¼stteki isim." },
+        description: { type: "string", description: "KÄ±sa aÃ§Ä±klama. Genelde merchant. Taksi: 'Ä°sim | Plaka: XX' gibi. Benzin: 'Shell | Plaka: XX' gibi." },
+        plate: { type: "string", description: "AraÃ§ plakasÄ± varsa." },
         receiptType: { type: "string", description: "taxi | fuel | general" },
-        sequenceNo: { type: "string", description: "Taksi fişlerindeki Sıra No (varsa). receiptNo alanına da yansıtılacak." },
+        sequenceNo: { type: "string", description: "Taksi fiÅŸlerindeki SÄ±ra No (varsa). receiptNo alanÄ±na da yansÄ±tÄ±lacak." },
         dateISO: { type: "string", description: "YYYY-MM-DD" },
         timeHHMM: { type: "string", description: "HH:MM 24h" },
         taxId: { type: "string" },
-        confidence: { type: "number", description: "0-1 arası" },
-        rawText: { type: "string", description: "kısa metin dökümü; satırları mümkünse koru" },
+        confidence: { type: "number", description: "0-1 arasÄ±" },
+        rawText: { type: "string", description: "kÄ±sa metin dÃ¶kÃ¼mÃ¼; satÄ±rlarÄ± mÃ¼mkÃ¼nse koru" },
       },
     };
 
-      const prompt = `Bu bir fiş/POS slip görseli. Sadece JSON döndür.
+      const prompt = `Bu bir fiÅŸ/POS slip gÃ¶rseli. Sadece JSON dÃ¶ndÃ¼r.
 
 Zorunlu alanlar:
-- category: şu listeden biri: YEMEK, ULAŞIM, TAKSİ, İLETİŞİM, OFİS-KIRTASİYE, KONAKLAMA, MEKAN, SANAT, KOSTÜM, DİĞER, FİŞSİZ, AVANS
-- amount: TOPLAM tutar (sayı)
-- receiptNo: belge/fiş no. Taksi fişinde varsa Sıra No buraya.
-- merchant: işletme adı (taksi: damga/ünvan veya üstteki isim)
+- category: ÅŸu listeden biri: YEMEK, ULAÅIM, TAKSÄ°, Ä°LETÄ°ÅÄ°M, OFÄ°S-KIRTASÄ°YE, KONAKLAMA, MEKAN, SANAT, KOSTÃœM, DÄ°ÄER, FÄ°ÅSÄ°Z, AVANS
+- amount: TOPLAM tutar (sayÄ±)
+- receiptNo: belge/fiÅŸ no. Taksi fiÅŸinde varsa SÄ±ra No buraya.
+- merchant: iÅŸletme adÄ± (taksi: damga/Ã¼nvan veya Ã¼stteki isim)
 - receiptType: taxi | fuel | general
 - plate: varsa plaka
-- description: kısa açıklama; genel: merchant. fuel: \"merchant | Plaka: XX\". taxi: \"merchant | Plaka: XX\" (varsa)
+- description: kÄ±sa aÃ§Ä±klama; genel: merchant. fuel: \"merchant | Plaka: XX\". taxi: \"merchant | Plaka: XX\" (varsa)
 
 Kurallar:
-- Taxi: Sıra No varsa receiptNo'ya yaz.
-- Fuel: plate varsa description mutlaka Plaka içersin.
-- rawText: en fazla 400 karakter kısa döküm.
+- Taxi: SÄ±ra No varsa receiptNo'ya yaz.
+- Fuel: plate varsa description mutlaka Plaka iÃ§ersin.
+- rawText: en fazla 400 karakter kÄ±sa dÃ¶kÃ¼m.
 `; 
 const payload = {
       model,
@@ -172,7 +175,7 @@ const payload = {
     if (!resp.ok) {
       try {
         if (requestId) {
-          await refundCredits({ userId, kind: "receipt", amount: 1, referenceId: requestId, idempotencyKey: `refund_receipt_${userId}_${requestId}_${resp.status}` });
+          await refundCredits({ userId: (userId ?? ""), kind: "receipt", amount: 1, referenceId: requestId, idempotencyKey: `refund_receipt_${userId}_${requestId}_${resp.status}` });
         }
       } catch {}
       const msg = json?.error?.message ? String(json.error.message) : `OpenAI HTTP ${resp.status}`;
@@ -231,10 +234,13 @@ return NextResponse.json({ ok: true, extracted });
   } catch (e: any) {
     try {
       if (requestId) {
-        await refundCredits({ userId, kind: "receipt", amount: 1, referenceId: requestId, idempotencyKey: `refund_receipt_${userId}_${requestId}_${Date.now()}` });
+        await refundCredits({ userId: (userId ?? ""), kind: "receipt", amount: 1, referenceId: requestId, idempotencyKey: `refund_receipt_${userId}_${requestId}_${Date.now()}` });
       }
     } catch {}
 
-    return NextResponse.json({ ok: false, error: e?.message || "Sunucu hatası." }, { status: 500 });
+    return NextResponse.json({ ok: false, error: e?.message || "Sunucu hatasÄ±." }, { status: 500 });
   }
 }
+
+
+

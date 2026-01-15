@@ -110,13 +110,13 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ team
   const { teamId } = await context.params;
   try {
     const body = await req.json().catch(() => ({} as any));
-    const teamId = String(teamIdParam || body.teamId || "").trim();
+    const resolvedTeamId = String(teamId || body.teamId || "").trim();
     const ownerId = String(body.ownerId || "").trim();
 
-    if (!teamId) return NextResponse.json({ ok: false, error: "teamId zorunlu." }, { status: 400 });
+    if (!resolvedTeamId) return NextResponse.json({ ok: false, error: "teamId zorunlu." }, { status: 400 });
 
     const db = safeReadDb();
-    const idx = db.teams.findIndex((t) => t.id === teamId);
+    const idx = db.teams.findIndex((t) => t.id === resolvedTeamId);
     if (idx === -1) return NextResponse.json({ ok: false, error: "Ekip bulunamadı." }, { status: 404 });
 
     const team = db.teams[idx];

@@ -3,10 +3,13 @@
 import * as React from "react";
 import clsx from "clsx";
 import { Loader2, X, CheckCircle2, AlertTriangle } from "lucide-react";
+import Link from "next/link";
 import type { Category, ReceiptMeta, Transaction } from "@/lib/types";
 import { CATEGORIES, defaultCategoryForKind, useAppStore, useStoreActions } from "@/lib/store";
 import ReceiptViewer from "@/components/ReceiptViewer";
 import { runVisionReceipt, resizeDataUrlForVision } from "@/lib/receipt/vision";
+import { ConfirmModal } from "@/components/ConfirmModal";
+import { formatCredits, getOrCreateLocalUserId } from "@/lib/creditsClient";
 
 type Props = {
   open: boolean;
@@ -215,11 +218,20 @@ export default function ReceiptApprovalModal({ open, projectId, files, onClose }
   const [rows, setRows] = React.useState<Row[]>([]);
   const [busy, setBusy] = React.useState(false);
   const [progress, setProgress] = React.useState({ done: 0, total: 0 });
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [confirmed, setConfirmed] = React.useState(false);
+  const [creditBalance, setCreditBalance] = React.useState<number | null>(null);
+  const [creditChecking, setCreditChecking] = React.useState(false);
+  const [creditCheckError, setCreditCheckError] = React.useState<string>("");
+  const [creditError, setCreditError] = React.useState<string>("");
 
   const stopRef = React.useRef(false);
 
   const [viewerOpen, setViewerOpen] = React.useState(false);
   const [viewerSrc, setViewerSrc] = React.useState("");
+  const receiptCount = Math.min(files.length, 50);
+  const creditInsufficient =
+    creditBalance != null && Number.isFinite(creditBalance) && creditBalance < receiptCount;
 
   // Keep latest rows in a ref so the Vision loop always reads current state.
   const rowsRef = React.useRef<Row[]>([]);
@@ -237,6 +249,11 @@ export default function ReceiptApprovalModal({ open, projectId, files, onClose }
 
     stopRef.current = false;
     startedRef.current = false;
+    setConfirmed(false);
+    setConfirmOpen(files.length > 0);
+    setCreditBalance(null);
+    setCreditCheckError("");
+    setCreditError("");
 
     const init: Row[] = (files || []).slice(0, 50).map((file) => {
       const thumbUrl = URL.createObjectURL(file);
@@ -263,17 +280,39 @@ export default function ReceiptApprovalModal({ open, projectId, files, onClose }
     setBusy(false);
     setProgress({ done: 0, total: init.length });
 
+    if (files.length > 0) {
+      setCreditChecking(true);
+      (async () => {
+        try {
+          const localUserId = getOrCreateLocalUserId();
+          const res = await fetch("/api/credits/balance", {
+            method: "GET",
+            headers: localUserId ? { "x-local-user-id": localUserId } : {},
+            cache: "no-store",
+          });
+          if (!res.ok) return;
+          const data = await res.json().catch(() => null);
+          setCreditBalance(Number((data as any)?.balance ?? 0));
+        } catch {
+          setCreditCheckError("Kredi bakiyesi alınamadı.");
+        } finally {
+          setCreditChecking(false);
+        }
+      })();
+    }
+
     return () => {
       init.forEach((r) => {
         try { URL.revokeObjectURL(r.thumbUrl); } catch {}
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, files]);
 
   // Process queue sequentially
   React.useEffect(() => {
     if (!open) return;
+    if (!confirmed) return;
     if (rows.length === 0) return;
     if (startedRef.current) return;
 
@@ -323,6 +362,11 @@ export default function ReceiptApprovalModal({ open, projectId, files, onClose }
               cooldownUntilRef.current = Date.now() + waitMs;
             }
             if (!res?.ok || !res.extracted) {
+              if (res?.error === "insufficient_credits" || res?.status === 402) {
+                stopRef.current = true;
+                setCreditError("Yetersiz kredi. İşlem durduruldu.");
+                throw new Error("Yetersiz kredi.");
+              }
               throw new Error(res?.error ? String(res.error) : "Fiş okunamadı");
             }
 
@@ -333,7 +377,7 @@ export default function ReceiptApprovalModal({ open, projectId, files, onClose }
             const seq = String(extracted.sequenceNo || "").trim();
             const receiptNo = String(extracted.receiptNo || "").trim() || seq;
 
-            const amountNum = extracted.amount != null ? Number(extracted.amount) : null;
+            const amountNum = extracted.amount != null ? Number(extracted.amount) : Number.NaN;
             const amountText = Number.isFinite(amountNum) && amountNum > 0 ? String(amountNum) : "";
 
             const rawText = String(extracted.rawText || "").trim();
@@ -425,7 +469,7 @@ export default function ReceiptApprovalModal({ open, projectId, files, onClose }
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, rows.length]);
+  }, [open, rows.length, confirmed]);
 
   const setAllApproved = (v: boolean) => {
     setRows((prev) => prev.map((r) => ({ ...r, approved: v })));
@@ -537,6 +581,46 @@ export default function ReceiptApprovalModal({ open, projectId, files, onClose }
 
   return (
     <>
+      <ConfirmModal
+        open={confirmOpen}
+        title="Toplu fiş okuma onayı"
+        description={`Seçilen ${receiptCount} fiş için ${receiptCount} kredi kullanılacak. Onaylıyor musun?`}
+        confirmLabel="Onayla"
+        cancelLabel="Vazgeç"
+        confirmDisabled={creditChecking || creditInsufficient || receiptCount === 0}
+        onCancel={() => {
+          stopRef.current = true;
+          onClose();
+        }}
+        onConfirm={() => {
+          setConfirmOpen(false);
+          setConfirmed(true);
+        }}
+      >
+        {creditChecking ? (
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-xs text-slate-300">
+            Kredi bakiyesi kontrol ediliyor...
+          </div>
+        ) : creditInsufficient ? (
+          <div className="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+            Yetersiz kredi. Mevcut: {formatCredits(creditBalance || 0)} kredi, Gerekli: {formatCredits(receiptCount)} kredi.
+            <div className="mt-2">
+              <Link
+                href="/app/account/buy"
+                className="inline-flex h-9 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-3 text-xs font-semibold text-slate-100 hover:bg-white/10"
+              >
+                Kredi Satın Al
+              </Link>
+            </div>
+          </div>
+        ) : null}
+        {creditCheckError ? (
+          <div className="mt-3 rounded-2xl border border-amber-400/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+            {creditCheckError}
+          </div>
+        ) : null}
+      </ConfirmModal>
+
       <div className="fixed inset-0 z-[75]">
         <div className="absolute inset-0 bg-black/60" onClick={() => onClose()} aria-hidden="true" />
 
@@ -584,6 +668,14 @@ export default function ReceiptApprovalModal({ open, projectId, files, onClose }
 
           {/* Controls */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-slate-950/60 px-5 py-3">
+            {creditError ? (
+              <div className="w-full rounded-2xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
+                {creditError}{" "}
+                <Link href="/app/account/buy" className="text-rose-100 underline hover:text-rose-50">
+                  Kredi Satın Al
+                </Link>
+              </div>
+            ) : null}
             <div className="flex items-center gap-2">
               <button
                 type="button"

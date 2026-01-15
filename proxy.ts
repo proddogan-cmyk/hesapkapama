@@ -1,14 +1,14 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 
 /**
- * Clerk middleware (compat-safe)
+ * Clerk proxy (compat-safe)
  *
  * Fixes:
  * - "Clerk: auth() was called but Clerk can't detect usage of clerkMiddleware()."
  *
  * Notes:
- * - Some @clerk/nextjs versions do NOT support auth().protect() inside middleware callback.
- * - This middleware enables Clerk context for auth() usage without forcing route protection.
+ * - Some @clerk/nextjs versions do NOT support auth().protect() inside proxy callback.
+ * - This proxy enables Clerk context for auth() usage without forcing route protection.
  * - If you want to protect /app later, we can add version-specific protection logic.
  */
 export default clerkMiddleware();

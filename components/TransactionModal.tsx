@@ -354,7 +354,7 @@ export default function TransactionModal({ open, kind, editTx = null, onClose }:
                 </div>
               ) : (
                 <label className="grid gap-2 text-xs text-slate-300">
-                  {subtype === "advance_out" ? "Kime verdin?" : "Kim (Firma)?"}
+                  Kim (Firma)?
                   <input
                     value={who}
                     onChange={(e) => setWho(e.target.value)}

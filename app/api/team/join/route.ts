@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
 
     const joinCode = String(body?.joinCode || "").trim();
     const name = String(body?.name || "").trim();
+    const phone = String(body?.phone || "").trim();
     const role = String(body?.role || "Yapım Asistanı").trim();
 
     if (!joinCode) return NextResponse.json({ ok: false, error: "Ekip kodu zorunlu." }, { status: 400 });

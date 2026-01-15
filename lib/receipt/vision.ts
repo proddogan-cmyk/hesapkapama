@@ -67,6 +67,9 @@ export async function runVisionReceipt(imageDataUrl: string): Promise<VisionResu
       const data = await res.json().catch(() => null);
 
       if (!res.ok || !data?.ok) {
+        if (res.status === 402 || data?.error === "insufficient_credits") {
+          return { ok: false, error: "insufficient_credits", status: 402 };
+        }
         const err = data?.error ? String(data.error) : `HTTP ${res.status}`;
         const retryAfterHeader = res.headers.get("retry-after");
         const retryAfterMs = retryAfterHeader ? Number(retryAfterHeader) * 1000 : 0;

@@ -6,20 +6,8 @@ import { Download, ArrowLeft } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { ProjectTabs } from "@/components/ProjectTabs";
 import { bySelectedProject, totals, categoryTotals, advanceByPerson } from "@/lib/selectors";
-
-
-function getLocalUserId(): string {
-  try {
-    const key = "hk_local_user_id_v1";
-    const existing = window.localStorage.getItem(key);
-    if (existing && existing.trim()) return existing.trim();
-    const id = `local_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`;
-    window.localStorage.setItem(key, id);
-    return id;
-  } catch {
-    return "";
-  }
-}
+import { ConfirmModal } from "@/components/ConfirmModal";
+import { formatCredits, getOrCreateLocalUserId } from "@/lib/creditsClient";
 
 export default function SummaryPage() {
   const profile = useAppStore((s) => s.profile);
@@ -33,8 +21,43 @@ export default function SummaryPage() {
 
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
-  const onExport = async () => {
+  const EXPORT_COST = 200;
+  const [exportOpen, setExportOpen] = React.useState(false);
+  const [exportBusy, setExportBusy] = React.useState(false);
+  const [exportChecking, setExportChecking] = React.useState(false);
+  const [exportBalance, setExportBalance] = React.useState<number | null>(null);
+  const [exportError, setExportError] = React.useState<string>("");
+
+  const refreshExportBalance = React.useCallback(async () => {
+    setExportChecking(true);
+    setExportError("");
+    try {
+      const localUserId = getOrCreateLocalUserId();
+      const balRes = await fetch("/api/credits/balance", {
+        method: "GET",
+        headers: localUserId ? { "x-local-user-id": localUserId } : {},
+        cache: "no-store",
+      });
+      if (!balRes.ok) return;
+      const data = await balRes.json().catch(() => null);
+      setExportBalance(Number((data as any)?.balance ?? 0));
+    } catch {
+      setExportError("Kredi bakiyesi alınamadı.");
+    } finally {
+      setExportChecking(false);
+    }
+  }, []);
+
+  const openExportModal = async () => {
     if (!selectedProjectId) return;
+    setExportOpen(true);
+    setExportBalance(null);
+    setExportError("");
+    refreshExportBalance();
+  };
+
+  const onExport = async (): Promise<boolean> => {
+    if (!selectedProjectId) return false;
 
     const projectName = String(selectedProject?.name || "Proje").trim();
     const safeProject = projectName
@@ -44,30 +67,7 @@ export default function SummaryPage() {
 
     const fname = `HesapKapama_${safeProject || "Proje"}_${new Date().toISOString().slice(0, 10)}.xlsx`;
 
-    const localUserId = getLocalUserId();
-    const cost = 200;
-
-    // Best-effort balance check
-    try {
-      const balRes = await fetch("/api/credits/balance", {
-        method: "GET",
-        headers: localUserId ? { "x-local-user-id": localUserId } : {},
-        cache: "no-store",
-      });
-      if (balRes.ok) {
-        const data = await balRes.json().catch(() => null);
-        const balance = Number((data as any)?.balance ?? 0);
-        if (balance < cost) {
-          alert(`Yetersiz kredi. Mevcut: ${balance}, Gerekli: ${cost}`);
-          return;
-        }
-      }
-    } catch {
-      // ignore
-    }
-
-    const ok = window.confirm(`Excel çıktısı almak ${cost} kredi harcar. Onaylıyor musun?`);
-    if (!ok) return;
+    const localUserId = getOrCreateLocalUserId();
 
     const requestId = `x_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 
@@ -92,15 +92,17 @@ export default function SummaryPage() {
       try {
         const data = await res.json();
         if ((data as any)?.error === "insufficient_credits") {
-          msg = `Yetersiz kredi. Mevcut: ${(data as any)?.balance}, Gerekli: ${(data as any)?.required}`;
+          const bal = Number((data as any)?.balance ?? 0);
+          setExportBalance(bal);
+          msg = `Yetersiz kredi. Mevcut: ${formatCredits(bal)}, Gerekli: ${formatCredits(Number((data as any)?.required ?? EXPORT_COST))}`;
         } else if ((data as any)?.error) {
           msg = `Excel çıktısı alınamadı: ${(data as any)?.error}`;
         }
       } catch {
         // ignore
       }
-      alert(msg);
-      return;
+      setExportError(msg);
+      return false;
     }
 
     const blob = await res.blob();
@@ -115,10 +117,55 @@ export default function SummaryPage() {
 
     // refresh badge
     window.dispatchEvent(new Event("hk_credits_refresh"));
+    return true;
   };
+
+  const exportInsufficient =
+    exportBalance != null && Number.isFinite(exportBalance) && exportBalance < EXPORT_COST;
 
   return (
     <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+      <ConfirmModal
+        open={exportOpen}
+        title="Excel çıktısı için onay"
+        description={`Excel çıktısı için ${formatCredits(EXPORT_COST)} kredi kullanılacak. Onaylıyor musun?`}
+        confirmLabel="Onayla"
+        cancelLabel="Vazgeç"
+        confirmDisabled={exportChecking || exportBusy || exportInsufficient}
+        busy={exportBusy}
+        onCancel={() => setExportOpen(false)}
+        onConfirm={async () => {
+          setExportBusy(true);
+          setExportError("");
+          const ok = await onExport();
+          setExportBusy(false);
+          if (ok) setExportOpen(false);
+        }}
+      >
+        {exportChecking ? (
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-xs text-slate-300">
+            Kredi bakiyesi kontrol ediliyor...
+          </div>
+        ) : exportInsufficient ? (
+          <div className="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+            Yetersiz kredi. Mevcut: {formatCredits(exportBalance || 0)} kredi, Gerekli: {formatCredits(EXPORT_COST)} kredi.
+            <div className="mt-2">
+              <Link
+                href="/app/account/buy"
+                className="inline-flex h-9 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-3 text-xs font-semibold text-slate-100 hover:bg-white/10"
+              >
+                Kredi Satın Al
+              </Link>
+            </div>
+          </div>
+        ) : null}
+        {exportError ? (
+          <div className="mt-3 rounded-2xl border border-rose-400/30 bg-rose-500/10 p-3 text-xs text-rose-200">
+            {exportError}
+          </div>
+        ) : null}
+      </ConfirmModal>
+
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="space-y-3">
           <div>
@@ -143,7 +190,7 @@ export default function SummaryPage() {
 
           <button
             type="button"
-            onClick={onExport}
+            onClick={openExportModal}
             disabled={!selectedProjectId}
             className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-emerald-500 px-4 py-3 text-xs font-semibold text-slate-950 hover:bg-emerald-400 disabled:opacity-60"
           >

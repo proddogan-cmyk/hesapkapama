@@ -1,5 +1,6 @@
-import fs from "fs";
+﻿import fs from "fs";
 import path from "path";
+import type { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
@@ -69,7 +70,7 @@ function isMemberOfProject(db: Db, projectName: string, userName: string) {
   return false;
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
   const url = new URL(req.url);
   const id = String(url.searchParams.get("id") || "").trim();
   const userName = String(url.searchParams.get("userName") || "").trim();
@@ -92,10 +93,10 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  if (!found) return new Response("Dosya bulunamadı", { status: 404 });
+  if (!found) return new Response("Dosya bulunamadÄ±", { status: 404 });
 
   if (!isMemberOfProject(db, found.projectName, userName)) {
-    return new Response("Erişim yok (proje üyesi değilsin)", { status: 403 });
+    return new Response("EriÅŸim yok (proje Ã¼yesi deÄŸilsin)", { status: 403 });
   }
 
   const fullPath = path.join(filesDir(), found.file.storedName);
@@ -112,3 +113,4 @@ export async function GET(req: NextRequest) {
     },
   });
 }
+

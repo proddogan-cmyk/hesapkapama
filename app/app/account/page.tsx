@@ -72,8 +72,10 @@ export default function AccountPage() {
         <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="text-sm font-semibold text-slate-100">Mevcut Kredilerim</div>
-              <div className="mt-1 text-2xl font-bold text-slate-100">{balance == null ? "…" : formatCredits(balance)}</div>
+              <div className="text-sm font-semibold text-slate-100">Krediler</div>
+              <div className="mt-1 text-2xl font-bold text-slate-100">
+                Kalan kredi: {balance == null ? "…" : formatCredits(balance)}
+              </div>
               <div className="mt-1 text-xs text-slate-400">Fiş okuma ve Excel çıktısı için kullanılır.</div>
             </div>
 
@@ -89,7 +91,7 @@ export default function AccountPage() {
                 href="/app/account/buy"
                 className="inline-flex h-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 text-xs font-semibold text-slate-200 hover:bg-white/10"
               >
-                Satın Al
+                Kredi Satın Al
               </Link>
             </div>
           </div>
