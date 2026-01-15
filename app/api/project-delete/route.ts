@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { readSharedDb, writeSharedDb } from "@/lib/server/sharedDb";
+import { del } from "@vercel/blob";
 
 export const runtime = "nodejs";
 
@@ -20,6 +22,7 @@ type DocFile = {
   id: string;
   originalName: string;
   storedName: string;
+  url?: string;
   docType: "calendar" | "scenario";
   mime: string;
   size: number;
@@ -33,31 +36,23 @@ type Db = {
   projectDocs?: Record<string, { calendar: DocFile[]; scenario: DocFile[] }>;
 };
 
-const DB_FILENAME = ".hkdb.json";
 const FILES_DIRNAME = ".hkfiles";
 
-function dbPath() {
-  return path.join(process.cwd(), DB_FILENAME);
-}
 function filesDir() {
   return path.join(process.cwd(), FILES_DIRNAME);
 }
 
-function safeReadDb(): Db {
+async function safeReadDb(): Promise<Db> {
   try {
-    const p = dbPath();
-    if (!fs.existsSync(p)) return {};
-    const raw = fs.readFileSync(p, "utf-8");
-    const parsed = JSON.parse(raw);
+    const parsed = await readSharedDb<any>({});
     if (!parsed || typeof parsed !== "object") return {};
     return parsed as Db;
   } catch {
     return {};
   }
 }
-function safeWriteDb(db: Db) {
-  const p = dbPath();
-  fs.writeFileSync(p, JSON.stringify(db, null, 2), "utf-8");
+async function safeWriteDb(db: Db) {
+  await writeSharedDb(db);
 }
 
 function normalizeName(s: string) {
@@ -103,7 +98,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Silme yetkisi sadece Reji / Yapımcı / Yapım Amiri." }, { status: 403 });
     }
 
-    const db = safeReadDb();
+    const db = await safeReadDb();
 
     const teams = Array.isArray(db.teams) ? db.teams : [];
     const hasProjectInDb =
@@ -124,6 +119,16 @@ export async function POST(req: NextRequest) {
       ];
 
       const dir = filesDir();
+      for (const f of all) {
+        if (f?.url) {
+          try {
+            await del(f.url);
+          } catch {
+            // ignore
+          }
+        }
+      }
+
       for (const f of all) {
         const stored = String(f?.storedName || "").trim();
         if (!stored) continue;
@@ -147,7 +152,7 @@ export async function POST(req: NextRequest) {
       db.teams = db.teams.filter((t) => String(t?.projectName || "").trim() !== projectName);
     }
 
-    safeWriteDb(db);
+    await safeWriteDb(db);
 
     return NextResponse.json({ ok: true, projectName });
   } catch (e: any) {

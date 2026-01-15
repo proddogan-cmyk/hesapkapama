@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { readSharedDb, writeSharedDb } from "@/lib/server/sharedDb";
 
 type TeamMember = {
   id: string;
@@ -24,18 +23,9 @@ type Db = {
   teams: Team[];
 };
 
-const DB_FILENAME = ".hkdb.json";
-
-function dbPath() {
-  return path.join(process.cwd(), DB_FILENAME);
-}
-
-function safeReadDb(): Db {
+async function safeReadDb(): Promise<Db> {
   try {
-    const p = dbPath();
-    if (!fs.existsSync(p)) return { teams: [] };
-    const raw = fs.readFileSync(p, "utf-8");
-    const parsed = JSON.parse(raw);
+    const parsed = await readSharedDb<any>({ teams: [] });
     if (!parsed || typeof parsed !== "object") return { teams: [] };
     if (!Array.isArray(parsed.teams)) return { teams: [] };
     return { teams: parsed.teams as Team[] };
@@ -44,9 +34,8 @@ function safeReadDb(): Db {
   }
 }
 
-function safeWriteDb(db: Db) {
-  const p = dbPath();
-  fs.writeFileSync(p, JSON.stringify(db, null, 2), "utf-8");
+async function safeWriteDb(db: Db) {
+  await writeSharedDb(db);
 }
 
 function uid(prefix = "id") {
@@ -65,7 +54,7 @@ function makeJoinCode(existing: Set<string>) {
 
 export async function GET(req: NextRequest, context: { params: Promise<{ teamId: string; }> }) {
   const { teamId } = await context.params;
-  const db = safeReadDb();
+  const db = await safeReadDb();
   return NextResponse.json({ ok: true, teams: db.teams });
 }
 
@@ -84,7 +73,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ teamId
       return NextResponse.json({ ok: false, error: "ownerId zorunlu." }, { status: 400 });
     }
 
-    const db = safeReadDb();
+    const db = await safeReadDb();
     const existingCodes = new Set(db.teams.map((t) => t.joinCode));
     const team: Team = {
       id: uid("team"),
@@ -98,7 +87,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ teamId
     };
 
     db.teams.unshift(team);
-    safeWriteDb(db);
+    await safeWriteDb(db);
 
     return NextResponse.json({ ok: true, team, teams: db.teams });
   } catch (e: any) {
@@ -115,7 +104,7 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ team
 
     if (!resolvedTeamId) return NextResponse.json({ ok: false, error: "teamId zorunlu." }, { status: 400 });
 
-    const db = safeReadDb();
+    const db = await safeReadDb();
     const idx = db.teams.findIndex((t) => t.id === resolvedTeamId);
     if (idx === -1) return NextResponse.json({ ok: false, error: "Ekip bulunamadı." }, { status: 404 });
 
@@ -129,7 +118,7 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ team
     }
 
     db.teams.splice(idx, 1);
-    safeWriteDb(db);
+    await safeWriteDb(db);
 
     return NextResponse.json({ ok: true, teams: db.teams });
   } catch (e: any) {

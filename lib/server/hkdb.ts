@@ -1,5 +1,4 @@
-import fs from "node:fs";
-import path from "node:path";
+import { getKv, updateKv } from "@/lib/server/kvStore";
 
 export type HKProfile = {
   name?: string;
@@ -14,43 +13,39 @@ type HKDB = {
   profiles: Record<string, HKProfile>;
 };
 
-function dbPath() {
-  // Local dev persistence. In production/serverless you MUST use a real DB.
-  return path.join(process.cwd(), ".hkdb.json");
+const PROFILE_KEY = "hk_profiles";
+
+async function readDb(): Promise<HKDB> {
+  const fallback: HKDB = { profiles: {} };
+  const db = await getKv<HKDB>(PROFILE_KEY, fallback);
+  if (!db || typeof db !== "object" || !db.profiles || typeof db.profiles !== "object") {
+    return fallback;
+  }
+  return db;
 }
 
-function readDb(): HKDB {
-  const p = dbPath();
-  try {
-    const raw = fs.readFileSync(p, "utf-8");
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === "object" && parsed.profiles && typeof parsed.profiles === "object") {
-      return parsed as HKDB;
-    }
-  } catch {}
-  return { profiles: {} };
-}
-
-function writeDb(db: HKDB) {
-  const p = dbPath();
-  fs.writeFileSync(p, JSON.stringify(db, null, 2), "utf-8");
-}
-
-export function getProfile(userKey: string): HKProfile | null {
+export async function getProfile(userKey: string): Promise<HKProfile | null> {
   if (!userKey) return null;
-  const db = readDb();
+  const db = await readDb();
   return db.profiles[userKey] || null;
 }
 
-export function saveProfile(userKey: string, profile: HKProfile): HKProfile {
+export async function saveProfile(userKey: string, profile: HKProfile): Promise<HKProfile> {
   if (!userKey) throw new Error("Missing user key");
-  const db = readDb();
-  const updated: HKProfile = {
-    ...db.profiles[userKey],
-    ...profile,
-    updatedAt: new Date().toISOString(),
-  };
-  db.profiles[userKey] = updated;
-  writeDb(db);
-  return updated;
+  const updated = await updateKv<HKDB>(PROFILE_KEY, { profiles: {} }, (db) => {
+    const next = db && typeof db === "object" ? db : { profiles: {} };
+    const merged: HKProfile = {
+      ...(next.profiles?.[userKey] || {}),
+      ...profile,
+      updatedAt: new Date().toISOString(),
+    };
+    return {
+      ...next,
+      profiles: {
+        ...(next.profiles || {}),
+        [userKey]: merged,
+      },
+    };
+  });
+  return updated.profiles[userKey];
 }

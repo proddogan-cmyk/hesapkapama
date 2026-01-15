@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { readSharedDb, writeSharedDb } from "@/lib/server/sharedDb";
 
 export const runtime = "nodejs";
 
@@ -41,18 +40,9 @@ type Db = {
   advanceTransfers?: AdvanceTransfer[];
 };
 
-const DB_FILENAME = ".hkdb.json";
-
-function dbPath() {
-  return path.join(process.cwd(), DB_FILENAME);
-}
-
-function safeReadDb(): Db {
+async function safeReadDb(): Promise<Db> {
   try {
-    const p = dbPath();
-    if (!fs.existsSync(p)) return {};
-    const raw = fs.readFileSync(p, "utf-8");
-    const parsed = JSON.parse(raw);
+    const parsed = await readSharedDb<any>({});
     if (!parsed || typeof parsed !== "object") return {};
     return parsed as Db;
   } catch {
@@ -60,9 +50,8 @@ function safeReadDb(): Db {
   }
 }
 
-function safeWriteDb(db: Db) {
-  const p = dbPath();
-  fs.writeFileSync(p, JSON.stringify(db, null, 2), "utf-8");
+async function safeWriteDb(db: Db) {
+  await writeSharedDb(db);
 }
 
 function uid(prefix = "adv") {
@@ -91,7 +80,7 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const userName = String(url.searchParams.get("userName") || "").trim();
 
-  const db = safeReadDb();
+  const db = await safeReadDb();
   const all = Array.isArray(db.advanceTransfers) ? db.advanceTransfers : [];
 
   if (!userName) {
@@ -129,7 +118,7 @@ export async function POST(req: NextRequest) {
     if (!createdBy) return NextResponse.json({ ok: false, error: "createdBy zorunlu." }, { status: 400 });
     if (!Number.isFinite(amount) || amount <= 0) return NextResponse.json({ ok: false, error: "amount geçersiz." }, { status: 400 });
 
-    const db = safeReadDb();
+    const db = await safeReadDb();
     db.advanceTransfers = Array.isArray(db.advanceTransfers) ? db.advanceTransfers : [];
 
     if (!isMemberOfProject(db, projectName, fromName)) {
@@ -169,7 +158,7 @@ export async function POST(req: NextRequest) {
     };
 
     db.advanceTransfers.push(transfer);
-    safeWriteDb(db);
+    await safeWriteDb(db);
 
     return NextResponse.json({ ok: true, transfer });
   } catch (e: any) {

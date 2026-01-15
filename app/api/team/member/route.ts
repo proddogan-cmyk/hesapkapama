@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { readSharedDb, writeSharedDb } from "@/lib/server/sharedDb";
 
 type TeamMember = {
   id: string;
@@ -25,18 +24,9 @@ type Db = {
   teams: Team[];
 };
 
-const DB_FILENAME = ".hkdb.json";
-
-function dbPath() {
-  return path.join(process.cwd(), DB_FILENAME);
-}
-
-function safeReadDb(): Db {
+async function safeReadDb(): Promise<Db> {
   try {
-    const p = dbPath();
-    if (!fs.existsSync(p)) return { teams: [] };
-    const raw = fs.readFileSync(p, "utf-8");
-    const parsed = JSON.parse(raw);
+    const parsed = await readSharedDb<any>({ teams: [] });
     if (!parsed || typeof parsed !== "object") return { teams: [] };
     if (!Array.isArray(parsed.teams)) return { teams: [] };
     return { teams: parsed.teams as Team[] };
@@ -45,9 +35,8 @@ function safeReadDb(): Db {
   }
 }
 
-function safeWriteDb(db: Db) {
-  const p = dbPath();
-  fs.writeFileSync(p, JSON.stringify(db, null, 2), "utf-8");
+async function safeWriteDb(db: Db) {
+  await writeSharedDb(db);
 }
 
 function uid(prefix = "id") {
@@ -65,7 +54,7 @@ export async function POST(req: NextRequest) {
     if (!teamId) return NextResponse.json({ ok: false, error: "teamId zorunlu." }, { status: 400 });
     if (!name) return NextResponse.json({ ok: false, error: "Üye adı zorunlu." }, { status: 400 });
 
-    const db = safeReadDb();
+    const db = await safeReadDb();
     const team = db.teams.find((t) => t.id === teamId);
     if (!team) return NextResponse.json({ ok: false, error: "Ekip bulunamadı." }, { status: 404 });
 
@@ -76,7 +65,7 @@ export async function POST(req: NextRequest) {
     const mem: TeamMember = { id: uid("mem"), name, role, phone: phone || undefined, status: "active" };
     team.members.push(mem);
 
-    safeWriteDb(db);
+    await safeWriteDb(db);
 
     return NextResponse.json({ ok: true, team, member: mem });
   } catch (e: any) {

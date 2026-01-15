@@ -5,8 +5,7 @@ import { getProfile, saveProfile, type HKProfile } from "@/lib/server/hkdb";
  * Onboarding currently POSTs to /api/user/profile.
  * Previously it returned a Next.js 404 HTML page because the route didn't exist.
  *
- * This implementation uses .hkdb.json for local dev persistence.
- * For production, replace with Postgres (Supabase/Neon).
+ * This implementation uses Postgres (Neon) for persistence.
  */
 
 function pickUserKey(fallbackLocalUserId?: string) {
@@ -29,7 +28,7 @@ export async function GET(req: NextRequest) {
 
   if (!userKey) return NextResponse.json({ profile: null }, { status: 200 });
 
-  const profile = getProfile(userKey);
+  const profile = await getProfile(userKey);
   return NextResponse.json({ profile }, { status: 200 });
 }
 
@@ -57,7 +56,7 @@ export async function POST(req: NextRequest) {
   };
 
   try {
-    const saved = saveProfile(userKey, profile);
+    const saved = await saveProfile(userKey, profile);
     return NextResponse.json({ ok: true, profile: saved }, { status: 200 });
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: e?.message || "Write failed" }, { status: 500 });

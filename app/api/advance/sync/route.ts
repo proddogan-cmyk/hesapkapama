@@ -1,23 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { readSharedDb } from "@/lib/server/sharedDb";
 
 export const runtime = "nodejs";
 
 type Db = { advanceTransfers?: any[] };
 
-const DB_FILENAME = ".hkdb.json";
-
-function dbPath() {
-  return path.join(process.cwd(), DB_FILENAME);
-}
-
-function safeReadDb(): Db {
+async function safeReadDb(): Promise<Db> {
   try {
-    const p = dbPath();
-    if (!fs.existsSync(p)) return {};
-    const raw = fs.readFileSync(p, "utf-8");
-    const parsed = JSON.parse(raw);
+    const parsed = await readSharedDb<any>({});
     if (!parsed || typeof parsed !== "object") return {};
     return parsed as Db;
   } catch {
@@ -35,7 +25,7 @@ export async function GET(req: NextRequest) {
   if (!userName) return NextResponse.json({ ok: true, items: [] });
 
   const u = normalizeName(userName);
-  const db = safeReadDb();
+  const db = await safeReadDb();
   const all = Array.isArray(db.advanceTransfers) ? db.advanceTransfers : [];
 
   const items = all.filter((t: any) => {

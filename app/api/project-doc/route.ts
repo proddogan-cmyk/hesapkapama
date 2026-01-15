@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { readSharedDb, writeSharedDb } from "@/lib/server/sharedDb";
+import { put } from "@vercel/blob";
 
 export const runtime = "nodejs";
 
@@ -19,6 +19,7 @@ type DocFile = {
   id: string;
   originalName: string;
   storedName: string;
+  url: string;
   docType: "calendar" | "scenario";
   mime: string;
   size: number;
@@ -32,23 +33,11 @@ type Db = {
   projectDocs?: Record<string, { calendar: DocFile[]; scenario: DocFile[] }>;
 };
 
-const DB_FILENAME = ".hkdb.json";
-const FILES_DIRNAME = ".hkfiles";
+const BLOB_PREFIX = "project-docs";
 
-function dbPath() {
-  return path.join(process.cwd(), DB_FILENAME);
-}
-
-function filesDir() {
-  return path.join(process.cwd(), FILES_DIRNAME);
-}
-
-function safeReadDb(): Db {
+async function safeReadDb(): Promise<Db> {
   try {
-    const p = dbPath();
-    if (!fs.existsSync(p)) return {};
-    const raw = fs.readFileSync(p, "utf-8");
-    const parsed = JSON.parse(raw);
+    const parsed = await readSharedDb<any>({});
     if (!parsed || typeof parsed !== "object") return {};
     return parsed as Db;
   } catch {
@@ -56,9 +45,8 @@ function safeReadDb(): Db {
   }
 }
 
-function safeWriteDb(db: Db) {
-  const p = dbPath();
-  fs.writeFileSync(p, JSON.stringify(db, null, 2), "utf-8");
+async function safeWriteDb(db: Db) {
+  await writeSharedDb(db);
 }
 
 function uid(prefix = "id") {
@@ -118,7 +106,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "userName zorunlu." }, { status: 400 });
   }
 
-  const db = safeReadDb();
+  const db = await safeReadDb();
   if (!isMemberOfProject(db, projectName, userName)) {
     return NextResponse.json({ ok: false, error: "Bu proje için erişim yok (ekip üyesi değilsin)." }, { status: 403 });
   }
@@ -152,7 +140,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Bu dosyayı yükleme yetkin yok." }, { status: 403 });
     }
 
-    const db = safeReadDb();
+    const db = await safeReadDb();
     if (!isMemberOfProject(db, projectName, userName)) {
       return NextResponse.json({ ok: false, error: "Bu projeye dosya yüklemek için ekip üyesi olmalısın." }, { status: 403 });
     }
@@ -170,21 +158,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Senaryo için sadece Word (.doc, .docx) yüklenebilir." }, { status: 400 });
     }
 
-    // write file to disk
-    const dir = filesDir();
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
     const id = uid("doc");
     const storedName = `${id}_${originalName}`;
-    const dest = path.join(dir, storedName);
-
     const buf = Buffer.from(await file.arrayBuffer());
-    fs.writeFileSync(dest, buf);
+    const blob = await put(`${BLOB_PREFIX}/${projectName}/${storedName}`, buf, {
+      access: "public",
+      contentType: file.type || "application/octet-stream",
+    });
 
     const meta: DocFile = {
       id,
       originalName,
       storedName,
+      url: blob.url,
       docType,
       mime: file.type || "application/octet-stream",
       size: buf.length,
@@ -196,7 +182,7 @@ export async function POST(req: NextRequest) {
     const bucket = ensureProjectBucket(db, projectName);
     bucket[docType].unshift(meta);
 
-    safeWriteDb(db);
+    await safeWriteDb(db);
 
     return NextResponse.json({ ok: true, file: meta });
   } catch (e: any) {

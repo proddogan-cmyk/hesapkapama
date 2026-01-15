@@ -1,6 +1,6 @@
 ﻿import fs from "fs";
 import path from "path";
-import type { NextRequest } from "next/server";
+import { readSharedDb } from "@/lib/server/sharedDb";
 
 export const runtime = "nodejs";
 
@@ -19,6 +19,7 @@ type DocFile = {
   id: string;
   originalName: string;
   storedName: string;
+  url?: string;
   docType: "calendar" | "scenario";
   mime: string;
   size: number;
@@ -32,21 +33,14 @@ type Db = {
   projectDocs?: Record<string, { calendar: DocFile[]; scenario: DocFile[] }>;
 };
 
-const DB_FILENAME = ".hkdb.json";
 const FILES_DIRNAME = ".hkfiles";
 
-function dbPath() {
-  return path.join(process.cwd(), DB_FILENAME);
-}
 function filesDir() {
   return path.join(process.cwd(), FILES_DIRNAME);
 }
-function safeReadDb(): Db {
+async function safeReadDb(): Promise<Db> {
   try {
-    const p = dbPath();
-    if (!fs.existsSync(p)) return {};
-    const raw = fs.readFileSync(p, "utf-8");
-    const parsed = JSON.parse(raw);
+    const parsed = await readSharedDb<any>({});
     if (!parsed || typeof parsed !== "object") return {};
     return parsed as Db;
   } catch {
@@ -78,7 +72,7 @@ export async function GET(req: Request) {
   if (!id) return new Response("id zorunlu", { status: 400 });
   if (!userName) return new Response("userName zorunlu", { status: 400 });
 
-  const db = safeReadDb();
+  const db = await safeReadDb();
   const projectDocs = db.projectDocs || {};
   let found: { projectName: string; file: DocFile } | null = null;
 
@@ -97,6 +91,10 @@ export async function GET(req: Request) {
 
   if (!isMemberOfProject(db, found.projectName, userName)) {
     return new Response("EriÅŸim yok (proje Ã¼yesi deÄŸilsin)", { status: 403 });
+  }
+
+  if (found.file.url) {
+    return Response.redirect(found.file.url, 302);
   }
 
   const fullPath = path.join(filesDir(), found.file.storedName);

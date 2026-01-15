@@ -1,6 +1,5 @@
-import { promises as fs } from "fs";
-import path from "path";
 import { randomUUID } from "crypto";
+import { readSharedDb, updateSharedDb } from "@/lib/server/sharedDb";
 
 // Generates stable IDs for records stored in the file-based DB.
 export function makeId(prefix: string = ""): string {
@@ -103,16 +102,9 @@ const DEFAULT_DB: DbShape = {
   transfers: [],
 };
 
-function dbPath() {
-  // repo root in dev/prod runtime
-  return path.join(process.cwd(), ".hkdb.json");
-}
-
 async function readDb(): Promise<DbShape> {
-  const p = dbPath();
   try {
-    const raw = await fs.readFile(p, "utf-8");
-    const parsed = JSON.parse(raw);
+    const parsed = await readSharedDb<any>({ ...DEFAULT_DB });
     if (!parsed || typeof parsed !== "object") return { ...DEFAULT_DB };
 
     // Soft-migrate old shapes by layering defaults
@@ -140,20 +132,16 @@ async function readDb(): Promise<DbShape> {
   }
 }
 
-async function writeDb(next: DbShape) {
-  const p = dbPath();
-  await fs.writeFile(p, JSON.stringify(next, null, 2), "utf-8");
-}
-
 export async function getDb() {
   return readDb();
 }
 
 export async function updateDb(mutator: (db: DbShape) => void) {
-  const db = await readDb();
-  mutator(db);
-  await writeDb(db);
-  return db;
+  return updateSharedDb({ ...DEFAULT_DB }, (db) => {
+    const next = db as DbShape;
+    mutator(next);
+    return next;
+  });
 }
 
 export async function getUserState(userId: string): Promise<DbState | null> {

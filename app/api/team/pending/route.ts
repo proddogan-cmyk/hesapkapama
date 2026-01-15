@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { readSharedDb, writeSharedDb } from "@/lib/server/sharedDb";
 
 export const runtime = "nodejs";
 
@@ -18,18 +17,9 @@ type Team = {
 
 type Db = { teams?: Team[] };
 
-const DB_FILENAME = ".hkdb.json";
-
-function dbPath() {
-  return path.join(process.cwd(), DB_FILENAME);
-}
-
-function safeReadDb(): Db {
+async function safeReadDb(): Promise<Db> {
   try {
-    const p = dbPath();
-    if (!fs.existsSync(p)) return {};
-    const raw = fs.readFileSync(p, "utf-8");
-    const parsed = JSON.parse(raw);
+    const parsed = await readSharedDb<any>({});
     if (!parsed || typeof parsed !== "object") return {};
     return parsed as Db;
   } catch {
@@ -37,9 +27,8 @@ function safeReadDb(): Db {
   }
 }
 
-function safeWriteDb(db: Db) {
-  const p = dbPath();
-  fs.writeFileSync(p, JSON.stringify(db, null, 2), "utf-8");
+async function safeWriteDb(db: Db) {
+  await writeSharedDb(db);
 }
 
 function normalizeName(s: string) {
@@ -61,7 +50,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "decision approve|reject olmalı." }, { status: 400 });
     }
 
-    const db = safeReadDb();
+    const db = await safeReadDb();
     const teams = Array.isArray(db.teams) ? db.teams : [];
     const t = teams.find((x) => x.id === teamId);
     if (!t) return NextResponse.json({ ok: false, error: "Ekip bulunamadı." }, { status: 404 });
@@ -85,7 +74,7 @@ export async function POST(req: NextRequest) {
       if (!exists) t.members.push({ ...mem, status: "active" });
     }
 
-    safeWriteDb(db);
+    await safeWriteDb(db);
     return NextResponse.json({ ok: true, team: t });
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: e?.message || "Sunucu hatası." }, { status: 500 });
